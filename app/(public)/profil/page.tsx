@@ -1,7 +1,8 @@
+// File: app/(public)/profil/page.tsx
+
 import type { Metadata } from "next";
 import { getDesaSettings } from "@/lib/firebase/settings";
 import { getAllPerangkat } from "@/lib/firebase/perangkat";
-import { PERANGKAT_MOCK } from "@/data/mock";
 import type { PerangkatDesa } from "@/types";
 
 export const revalidate = 60;
@@ -17,8 +18,8 @@ export default async function ProfilPage() {
     getAllPerangkat(),
   ]);
 
-  const perangkat: PerangkatDesa[] =
-    perangkatFirestore.length > 0 ? perangkatFirestore : PERANGKAT_MOCK;
+  // Hanya ambil data asli dari Firestore
+  const perangkat: PerangkatDesa[] = perangkatFirestore;
 
   const STATS = [
     { label: "Jumlah Penduduk", value: s.jumlahPenduduk, unit: "jiwa",  icon: "👥" },
@@ -72,9 +73,16 @@ export default async function ProfilPage() {
               <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "1.75rem", color: "var(--color-ocean-900)", marginBottom: "20px" }}>
                 Asal Usul Desa
               </h2>
-              <p style={{ fontSize: "0.95rem", lineHeight: 1.85, color: "var(--color-ocean-800)" }}>
-                {s.sejarah}
-              </p>
+              {/* PERBAIKAN: Menggunakan div, white-space pre-wrap, dan dangerouslySetInnerHTML */}
+              <div 
+                style={{ 
+                  fontSize: "0.95rem", 
+                  lineHeight: 1.85, 
+                  color: "var(--color-ocean-800)",
+                  whiteSpace: "pre-wrap", // Ini kunci agar baris baru / enter terbaca
+                }}
+                dangerouslySetInnerHTML={{ __html: s.sejarah }}
+              />
             </div>
 
             <div>
@@ -96,7 +104,10 @@ export default async function ProfilPage() {
                     <div style={{ width: 24, height: 24, borderRadius: "50%", background: "var(--color-ocean-100)", color: "var(--color-ocean-700)", fontSize: "0.75rem", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: "1px" }}>
                       {i + 1}
                     </div>
-                    <p style={{ fontSize: "0.9rem", lineHeight: 1.65, color: "var(--color-ocean-800)" }}>{m}</p>
+                    {/* PERBAIKAN MISI: Menambahkan pre-wrap agar list dalam misi juga terbaca jika ada */}
+                    <div style={{ fontSize: "0.9rem", lineHeight: 1.65, color: "var(--color-ocean-800)", whiteSpace: "pre-wrap" }}>
+                      {m}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -137,25 +148,45 @@ export default async function ProfilPage() {
               Perangkat Desa
             </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "20px" }}>
-            {perangkat.map((p) => (
-              <div key={p.id} style={{ background: "var(--color-ocean-50)", borderRadius: "16px", padding: "24px", textAlign: "center", border: "1px solid var(--color-ocean-100)" }}>
-                <div style={{ width: 64, height: 64, borderRadius: "50%", overflow: "hidden", margin: "0 auto 14px", background: "var(--color-ocean-200)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  {p.photo ? (
-                    <img src={p.photo} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                  ) : (
-                    <span style={{ fontSize: "1.5rem" }}>👤</span>
-                  )}
+
+          {/* Empty State Jika Data Kosong */}
+          {perangkat.length === 0 ? (
+            <div style={{
+              textAlign: "center", padding: "40px 20px",
+              background: "var(--color-ocean-50)", borderRadius: "16px",
+              border: "1px dashed var(--color-ocean-200)",
+              maxWidth: "600px", margin: "0 auto"
+            }}>
+              <span style={{ fontSize: "2.5rem", display: "block", marginBottom: "12px", opacity: 0.7 }}>👥</span>
+              <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "1.1rem", color: "var(--color-ocean-900)", marginBottom: "6px" }}>
+                Data Belum Tersedia
+              </h3>
+              <p style={{ fontSize: "0.85rem", color: "var(--color-ocean-600)" }}>
+                Struktur organisasi dan perangkat desa akan segera diperbarui.
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "20px" }}>
+              {perangkat.map((p) => (
+                <div key={p.id} style={{ background: "var(--color-ocean-50)", borderRadius: "16px", padding: "24px", textAlign: "center", border: "1px solid var(--color-ocean-100)" }}>
+                  <div style={{ width: 64, height: 64, borderRadius: "50%", overflow: "hidden", margin: "0 auto 14px", background: "var(--color-ocean-200)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {p.photo ? (
+                      <img src={p.photo} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <span style={{ fontSize: "1.5rem" }}>👤</span>
+                    )}
+                  </div>
+                  <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--color-ocean-900)", marginBottom: "4px" }}>
+                    {p.name === "—" || !p.name ? "Belum Diisi" : p.name}
+                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "var(--color-ocean-600)", background: "var(--color-ocean-100)", borderRadius: "9999px", padding: "3px 12px", display: "inline-block", marginTop: "4px" }}>
+                    {p.jabatan}
+                  </div>
                 </div>
-                <div style={{ fontWeight: 600, fontSize: "0.9rem", color: "var(--color-ocean-900)", marginBottom: "4px" }}>
-                  {p.name === "—" || !p.name ? "Belum Diisi" : p.name}
-                </div>
-                <div style={{ fontSize: "0.78rem", color: "var(--color-ocean-600)", background: "var(--color-ocean-100)", borderRadius: "9999px", padding: "3px 12px", display: "inline-block", marginTop: "4px" }}>
-                  {p.jabatan}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+
           <p style={{ textAlign: "center", marginTop: "24px", fontSize: "0.82rem", color: "var(--color-ocean-400)" }}>
             * Data dapat diperbarui admin melalui Panel Admin → Kelola Perangkat
           </p>

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { getBeritaTerbaru } from "@/lib/firebase/berita";
-import { BERITA_MOCK } from "@/data/mock";
 import { formatTanggal } from "@/lib/utils";
 import type { Berita } from "@/types";
 
@@ -17,8 +16,8 @@ const EMOJI: Record<string, string> = {
 };
 
 export default async function BeritaSection() {
-  let list: Berita[] = await getBeritaTerbaru();
-  if (list.length === 0) list = BERITA_MOCK.slice(0, 3);
+  // Hanya ambil dari Firestore
+  const list: Berita[] = await getBeritaTerbaru();
 
   return (
     <section className="section-padding" style={{ background: "white" }}>

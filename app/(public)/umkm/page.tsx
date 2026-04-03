@@ -1,12 +1,14 @@
-// app/(public)/umkm/page.tsx
+// File: app/(public)/umkm/page.tsx
+
 import { getAllUmkm } from "@/lib/firebase/umkm";
-import { UMKM_MOCK } from "@/data/mock";
 import UmkmClient from "./UmkmClient";
 
-export const revalidate = 60;
+// Mematikan cache agar data UMKM langsung LIVE saat diupdate Admin
+export const dynamic = "force-dynamic";
 
 export default async function UmkmPage() {
-  let list = await getAllUmkm();
-  if (list.length === 0) list = UMKM_MOCK;
+  // Hanya mengambil data asli dari Firebase
+  const list = await getAllUmkm();
+  
   return <UmkmClient initialData={list} />;
 }

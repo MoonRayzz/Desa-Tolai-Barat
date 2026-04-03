@@ -1,11 +1,14 @@
+// File: app/(public)/wisata/page.tsx
+
 import { getAllWisata } from "@/lib/firebase/wisata";
-import { WISATA_MOCK } from "@/data/mock";
 import WisataClient from "./WisataClient";
 
-export const revalidate = 60;
+// Mematikan cache agar data wisata langsung LIVE saat diupdate Admin
+export const dynamic = "force-dynamic";
 
 export default async function WisataPage() {
-  let list = await getAllWisata();
-  if (list.length === 0) list = WISATA_MOCK;
+  // Hanya mengambil data asli dari Firebase
+  const list = await getAllWisata();
+  
   return <WisataClient initialData={list} />;
 }

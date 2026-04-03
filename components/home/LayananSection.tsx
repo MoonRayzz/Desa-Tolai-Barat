@@ -1,17 +1,18 @@
-"use client";
 import Link from "next/link";
 import SectionHeader from "@/components/ui/SectionHeader";
-import { LAYANAN_DESA } from "@/data/mock";
+import { getAktifLayanan, TEMA_COLORS } from "@/lib/firebase/layanan";
+import { getDesaSettings } from "@/lib/firebase/settings";
 
-const ICON_LAYANAN = ["📄", "🏠", "🏪", "💼", "🗺️", "🖼️"];
+export default async function LayananSection() {
+  const [layanan, s] = await Promise.all([
+    getAktifLayanan(),
+    getDesaSettings(),
+  ]);
 
-const WARNA: Record<string, { bg: string; border: string; icon: string }> = {
-  ocean:  { bg: "#E0F4F7", border: "#5ECFDE", icon: "#0B5E6B" },
-  gold:   { bg: "#FDF3C8", border: "#F5C842", icon: "#854F0B" },
-  forest: { bg: "#EBF5E0", border: "#6FAB44", icon: "#2D5016" },
-};
+  const waUrl = "https://wa.me/" + s.whatsapp;
 
-export default function LayananSection() {
+  const ICONS = ["📄", "🏠", "🏪", "💼", "🗺️", "🖼️"];
+
   return (
     <section className="section-padding bg-ocean-gradient">
       <div className="container-desa">
@@ -22,59 +23,58 @@ export default function LayananSection() {
           center
         />
 
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
-          gap: "16px",
-          marginTop: "48px",
-        }}>
-          {LAYANAN_DESA.map((l, i) => {
-            const w = WARNA[l.warna] ?? WARNA.ocean;
-            return (
-              <Link
-                key={l.label}
-                href={l.href}
-                style={{
-                  display: "flex", flexDirection: "column",
-                  alignItems: "center", textAlign: "center",
-                  padding: "28px 16px",
-                  background: "white",
-                  border: `1px solid ${w.border}`,
-                  borderRadius: "16px",
-                  textDecoration: "none",
-                  transition: "all 0.2s ease",
-                  animation: "fadeUp 0.5s ease-out forwards",
-                  animationDelay: `${i * 80}ms`,
-                  opacity: 0,
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.background = w.bg;
-                  (e.currentTarget as HTMLElement).style.transform = "translateY(-4px)";
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.background = "white";
-                  (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-                }}
-              >
-                <div style={{
-                  width: "52px", height: "52px",
-                  background: w.bg,
-                  borderRadius: "14px",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: "1.5rem", marginBottom: "14px",
-                }}>
-                  {ICON_LAYANAN[i]}
-                </div>
-                <span style={{
-                  fontSize: "0.85rem", fontWeight: 500,
-                  color: w.icon, lineHeight: 1.4,
-                }}>
-                  {l.label}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
+        {layanan.length > 0 ? (
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+            gap: "16px",
+            marginTop: "48px",
+          }}>
+            {layanan.map((l, i) => {
+              const c = TEMA_COLORS[l.tema] ?? TEMA_COLORS.ocean;
+              return (
+                <Link
+                  key={l.id}
+                  href="/layanan"
+                  style={{
+                    display: "flex", flexDirection: "column",
+                    alignItems: "center", textAlign: "center",
+                    padding: "28px 16px",
+                    background: "white",
+                    border: "1px solid " + c.border,
+                    borderRadius: "16px",
+                    textDecoration: "none",
+                    transition: "all 0.2s ease",
+                    animation: "fadeUp 0.5s ease-out forwards",
+                    animationDelay: i * 80 + "ms",
+                    opacity: 0,
+                  }}
+                >
+                  <div style={{
+                    width: "52px", height: "52px",
+                    background: c.bg,
+                    borderRadius: "14px",
+                    display: "flex", alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "1.5rem", marginBottom: "14px",
+                  }}>
+                    {l.icon || ICONS[i % ICONS.length]}
+                  </div>
+                  <span style={{
+                    fontSize: "0.85rem", fontWeight: 500,
+                    color: c.text, lineHeight: 1.4,
+                  }}>
+                    {l.judul}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{ textAlign: "center", marginTop: "48px", color: "var(--color-ocean-400)", fontSize: "0.875rem" }}>
+            Belum ada layanan yang ditambahkan.
+          </div>
+        )}
 
         {/* CTA banner */}
         <div style={{
@@ -96,18 +96,47 @@ export default function LayananSection() {
               Butuh bantuan layanan desa?
             </h3>
             <p style={{ color: "#94DFE9", fontSize: "0.9rem" }}>
-              Hubungi kantor desa atau datang langsung pada jam kerja.
+              {s.jamLayanan || "Hubungi kantor desa pada jam kerja."}
             </p>
           </div>
-          <Link href="/kontak" style={{
-            display: "inline-flex", alignItems: "center", gap: "8px",
-            background: "#F5C842", color: "#412402",
-            fontWeight: 600, fontSize: "0.875rem",
-            padding: "12px 24px", borderRadius: "12px",
-            textDecoration: "none", flexShrink: 0,
-          }}>
-            Hubungi Kami
-          </Link>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", flexShrink: 0 }}>
+            {s.telepon && (
+              
+              <a href={"tel:" + s.telepon}
+                className="btn-primary"
+                style={{ padding: "12px 20px", fontSize: "0.875rem" }}
+              >
+                Telepon Desa
+              </a>
+            )}
+            {s.whatsapp && (
+              
+              <a href={waUrl}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "6px",
+                  background: "#25D366", color: "white",
+                  fontWeight: 600, fontSize: "0.875rem",
+                  padding: "12px 20px", borderRadius: "12px",
+                  textDecoration: "none",
+                }}
+              >
+                WhatsApp
+              </a>
+            )}
+            {!s.telepon && !s.whatsapp && (
+              <Link href="/layanan" style={{
+                display: "inline-flex", alignItems: "center", gap: "8px",
+                background: "#F5C842", color: "#412402",
+                fontWeight: 600, fontSize: "0.875rem",
+                padding: "12px 24px", borderRadius: "12px",
+                textDecoration: "none",
+              }}>
+                Lihat Layanan
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </section>

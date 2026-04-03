@@ -13,10 +13,34 @@ export default async function StatsSection() {
     { label: "Kode Pos",        value: s.kodePos,        unit: "",      icon: "📮" },
   ];
 
+  // PERBAIKAN: Membuat fungsi pemotong teks (truncate)
+  const truncateText = (text: string, maxLength: number) => {
+    if (!text) return "";
+    if (text.length <= maxLength) return text;
+    // Potong teks dan tambahkan elipsis
+    return text.substring(0, maxLength).trim() + "...";
+  };
+
+  // Menggunakan fungsi pemotong teks untuk "Sejarah Singkat"
   const INFO = [
-    { judul: "Sejarah Singkat", isi: s.sejarah,     warna: "#E0F4F7", border: "#5ECFDE" },
-    { judul: "Visi Desa",       isi: `"${s.visi}"`, warna: "#FDF3C8", border: "#F5C842" },
-    { judul: "Letak Geografis", isi: "Berbatasan langsung dengan Teluk Tomini di sebelah utara, bagian dari Kecamatan Torue. Koordinat: 0°59′19″LS, 120°19′51″BT.", warna: "#EBF5E0", border: "#6FAB44" },
+    { 
+      judul: "Sejarah Singkat", 
+      isi: truncateText(s.sejarah, 180), // Maksimal 180 karakter
+      warna: "#E0F4F7", 
+      border: "#5ECFDE" 
+    },
+    { 
+      judul: "Visi Desa",       
+      isi: `"${s.visi}"`, 
+      warna: "#FDF3C8", 
+      border: "#F5C842" 
+    },
+    { 
+      judul: "Letak Geografis", 
+      isi: "Berbatasan langsung dengan Teluk Tomini di sebelah utara, bagian dari Kecamatan Torue. Koordinat: 0°59′19″LS, 120°19′51″BT.", 
+      warna: "#EBF5E0", 
+      border: "#6FAB44" 
+    },
   ];
 
   return (

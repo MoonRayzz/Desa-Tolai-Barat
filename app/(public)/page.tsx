@@ -3,6 +3,7 @@ import HeroSection    from "@/components/home/HeroSection";
 import StatsSection   from "@/components/home/StatsSection";
 import AgendaSection  from "@/components/home/AgendaSection";
 import WisataSection  from "@/components/home/WisataSection";
+import SurveiWidget   from "@/components/home/SurveiWidget";
 import BeritaSection  from "@/components/home/BeritaSection";
 import LayananSection from "@/components/home/LayananSection";
 import MapSection     from "@/components/home/MapSection";
@@ -23,6 +24,7 @@ export default function HomePage() {
       <StatsSection />
       <AgendaSection />
       <WisataSection />
+      <SurveiWidget />
       <BeritaSection />
       <LayananSection />
       <MapSection />

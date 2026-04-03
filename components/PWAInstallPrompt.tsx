@@ -6,6 +6,7 @@ export default function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable]   = useState(false);
   const [isInstalled, setIsInstalled]       = useState(false);
+  const [isMinimized, setIsMinimized]       = useState(false);
 
   useEffect(() => {
     // 1. Daftarkan Service Worker
@@ -26,6 +27,11 @@ export default function PWAInstallPrompt() {
       e.preventDefault();
       setDeferredPrompt(e);
       setIsInstallable(true);
+
+      // AUTO-MINIMIZE: Sembunyikan teks setelah 6 detik agar tidak mengganggu
+      setTimeout(() => {
+        setIsMinimized(true);
+      }, 6000);
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -42,10 +48,16 @@ export default function PWAInstallPrompt() {
     };
   }, []);
 
-  // Jika tidak bisa diinstal (misal sudah diinstal, atau browser tidak support), jangan tampilkan apa-apa
   if (!isInstallable || isInstalled) return null;
 
-  const handleInstallClick = async () => {
+  const handleMainClick = async () => {
+    // Jika sedang dalam mode ikon saja, klik pertama akan membuka (expand)
+    if (isMinimized) {
+      setIsMinimized(false);
+      return;
+    }
+
+    // Jika sedang terbuka, klik akan memicu proses instal
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
@@ -57,24 +69,80 @@ export default function PWAInstallPrompt() {
 
   return (
     <div style={{
-      position: "fixed", bottom: "24px", left: "24px", zIndex: 9999,
+      position: "fixed", 
+      bottom: "24px", 
+      right: "24px", // Pindah ke kanan
+      zIndex: 9999,
       animation: "fadeUp 0.5s ease-out forwards",
     }}>
       <button
-        onClick={handleInstallClick}
+        onClick={handleMainClick}
         style={{
-          display: "flex", alignItems: "center", gap: "8px",
-          background: "var(--color-ocean-900)", color: "white",
-          padding: "12px 20px", borderRadius: "16px",
-          boxShadow: "var(--shadow-card-lg)", border: "none", cursor: "pointer",
-          fontWeight: 600, fontSize: "0.875rem", transition: "all 0.2s",
+          display: "flex", 
+          alignItems: "center", 
+          gap: isMinimized ? "0px" : "10px",
+          background: "var(--color-ocean-900)", 
+          color: "white",
+          padding: isMinimized ? "12px" : "12px 20px", 
+          borderRadius: isMinimized ? "50%" : "16px", // Jadi bulat kalau minimize
+          boxShadow: "0 10px 25px rgba(0,0,0,0.2)", 
+          border: "none", 
+          cursor: "pointer",
+          fontWeight: 600, 
+          fontSize: "0.875rem", 
+          transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+          width: isMinimized ? "50px" : "auto",
+          height: isMinimized ? "50px" : "auto",
+          justifyContent: "center",
+          overflow: "hidden",
+          whiteSpace: "nowrap",
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-ocean-800)")}
-        onMouseLeave={(e) => (e.currentTarget.style.background = "var(--color-ocean-900)")}
       >
-        <span style={{ fontSize: "1.2rem" }}>📱</span>
-        Install Aplikasi Desa
+        <span style={{ 
+          fontSize: "1.2rem",
+          transition: "transform 0.3s"
+        }}>
+          📱
+        </span>
+        
+        <span style={{ 
+          opacity: isMinimized ? 0 : 1,
+          maxWidth: isMinimized ? "0px" : "200px",
+          transition: "all 0.3s",
+          pointerEvents: isMinimized ? "none" : "auto"
+        }}>
+          Install Aplikasi Desa
+        </span>
       </button>
+
+      {/* Tombol Close kecil jika user ingin minimize manual */}
+      {!isMinimized && (
+        <div 
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsMinimized(true);
+          }}
+          style={{
+            position: "absolute",
+            top: "-8px",
+            right: "-8px",
+            background: "#ef4444",
+            color: "white",
+            width: "20px",
+            height: "20px",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "10px",
+            cursor: "pointer",
+            border: "2px solid white",
+            boxShadow: "0 2px 5px rgba(0,0,0,0.2)"
+          }}
+        >
+          ✕
+        </div>
+      )}
     </div>
   );
 }

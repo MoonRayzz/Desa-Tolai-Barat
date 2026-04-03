@@ -16,6 +16,8 @@ const NAV = [
   { href: "/admin/umkm",       icon: "🏪", label: "UMKM"            },
   { href: "/admin/galeri",     icon: "🖼", label: "Galeri"          },
   { href: "/admin/perangkat",  icon: "👥", label: "Perangkat"       },
+  { href: "/admin/survei",     icon: "📊", label: "Survei"          },
+  { href: "/admin/aspirasi",   icon: "💌", label: "Aspirasi"        },
 ];
 
 function AdminShell({ children }: { children: React.ReactNode }) {
@@ -112,15 +114,21 @@ function AdminShell({ children }: { children: React.ReactNode }) {
                   textDecoration: "none",
                   fontSize: "0.875rem",
                   fontWeight: active ? 500 : 400,
-                  color: active ? "var(--color-ocean-300)" : "rgba(255,255,255,0.55)",
-                  background: active ? "rgba(94,207,222,0.1)" : "transparent",
+                  color: active
+                    ? "var(--color-ocean-300)"
+                    : "rgba(255,255,255,0.55)",
+                  background: active
+                    ? "rgba(94,207,222,0.1)"
+                    : "transparent",
                   borderLeft: active
                     ? "2px solid var(--color-ocean-400)"
                     : "2px solid transparent",
                   transition: "all 0.15s",
                 }}
               >
-                <span style={{ fontSize: "1rem", width: "20px", textAlign: "center" }}>
+                <span style={{
+                  fontSize: "1rem", width: "20px", textAlign: "center",
+                }}>
                   {n.icon}
                 </span>
                 {n.label}
@@ -147,14 +155,12 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           <button
             onClick={logout}
             style={{
-              width: "100%",
-              padding: "8px",
+              width: "100%", padding: "8px",
               background: "rgba(255,255,255,0.06)",
               border: "1px solid rgba(255,255,255,0.1)",
               borderRadius: "8px",
               color: "rgba(255,255,255,0.6)",
-              fontSize: "0.8rem",
-              cursor: "pointer",
+              fontSize: "0.8rem", cursor: "pointer",
               transition: "all 0.15s",
             }}
           >

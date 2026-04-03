@@ -88,3 +88,57 @@ export interface LayananDesa {
   aktif:  boolean;
   urutan: number;
 }
+
+// ─── Survei ──────────────────────────────────────────────────────────────────
+export interface PertanyaanSurvei {
+  id:   string;
+  teks: string;
+  opsi: string[];
+}
+
+export interface Survei {
+  id:             string;
+  judul:          string;
+  deskripsi:      string;
+  pertanyaan:     PertanyaanSurvei[];
+  aktif:          boolean;
+  startDate:      string;
+  endDate:        string | null;
+  totalResponden: number;
+  createdAt:      string;
+}
+
+export interface JawabanSurvei {
+  id:          string;
+  surveiId:    string;
+  jawaban:     Record<string, string>;
+  submittedAt: string;
+}
+
+export interface HasilOpsi {
+  teks:   string;
+  count:  number;
+  persen: number;
+}
+
+export interface HasilPertanyaan {
+  pertanyaanId:  string;
+  teks:          string;
+  opsi:          HasilOpsi[];
+  totalJawaban:  number;
+}
+
+// ─── Aspirasi ─────────────────────────────────────────────────────────────────
+export type AspirasiKategori =
+  | "infrastruktur" | "pelayanan" | "lingkungan"
+  | "ekonomi"       | "pendidikan" | "lainnya";
+
+export interface Aspirasi {
+  id:          string;
+  nama:        string;
+  kontak:      string;
+  isi:         string;
+  kategori:    AspirasiKategori;
+  dibaca:      boolean;
+  submittedAt: string;
+}
