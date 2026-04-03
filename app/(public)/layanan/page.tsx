@@ -71,7 +71,6 @@ export default async function LayananPage() {
                   overflow: "hidden",
                   boxShadow: "var(--shadow-card)",
                 }}>
-                  {/* Header */}
                   <div style={{
                     background: c.bg,
                     padding: "20px 24px",
@@ -98,7 +97,6 @@ export default async function LayananPage() {
                     </div>
                   </div>
 
-                  {/* Syarat */}
                   <div style={{ padding: "20px 24px" }}>
                     <div style={{
                       fontSize: "0.78rem", color: "var(--color-ocean-500)",
@@ -124,7 +122,6 @@ export default async function LayananPage() {
             })}
           </div>
 
-          {/* CTA */}
           <div style={{
             marginTop: "48px",
             background: "var(--color-ocean-900)",
@@ -148,8 +145,6 @@ export default async function LayananPage() {
               </p>
             </div>
             <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-              
-              {/* TAG <a DITAMBAHKAN KEMBALI DI SINI */}
               <a 
                 href={"tel:" + s.telepon}
                 className="btn-primary"
@@ -157,9 +152,7 @@ export default async function LayananPage() {
               >
                 Telepon Desa
               </a>
-
               {s.whatsapp && (
-                /* TAG <a DITAMBAHKAN KEMBALI DI SINI */
                 <a 
                   href={waUrl}
                   target="_blank"
@@ -170,7 +163,6 @@ export default async function LayananPage() {
                   WhatsApp
                 </a>
               )}
-              
             </div>
           </div>
         </div>
