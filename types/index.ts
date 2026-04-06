@@ -1,3 +1,5 @@
+// File: types/index.ts
+
 export type BeritaKategori =
   | "pengumuman" | "berita" | "kegiatan" | "pembangunan";
 
@@ -39,7 +41,6 @@ export interface Umkm {
   image:       string;
   kategori:    UmkmKategori;
   whatsapp:    string | null;
-  // Perbaikan: Tambahkan field waktu di sini
   createdAt?:  string | null;
   updatedAt?:  string | null;
 }
@@ -141,4 +142,29 @@ export interface Aspirasi {
   kategori:    AspirasiKategori;
   dibaca:      boolean;
   submittedAt: string;
+}
+
+// ─── BUMDes (Badan Usaha Milik Desa) ──────────────────────────────────────────
+
+// 1. Profil Utama BUMDes (Data tunggal)
+export interface BumdesProfile {
+  nama:      string;
+  deskripsi: string;
+  direktur:  string;
+  telepon:   string;
+  email:     string;
+  visi:      string;
+}
+
+// 2. Unit Usaha BUMDes (Koleksi/Daftar)
+export interface BumdesUnit {
+  id:          string;
+  namaUnit:    string;
+  pengelola:   string;
+  description: string;
+  image:       string;
+  whatsapp:    string | null;
+  aktif:       boolean;
+  createdAt?:  string | null;
+  updatedAt?:  string | null;
 }

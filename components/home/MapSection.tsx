@@ -7,18 +7,14 @@ export default async function MapSection() {
   const lat = s.koordinatLat || "-0.988611";
   const lng = s.koordinatLng || "120.330833";
 
-  const embedUrl = [
-    "https://www.google.com/maps/embed?pb=",
-    "!1m18!1m12!1m3!1d15958.07736653288",
-    `!2d${lng}!3d${lat}`,
-    "!2m3!1f0!2f0!3f0",
-    "!3m2!1i1024!2i768!4f13.1",
-    "!3m3!1m2!1s0x0%3A0x0",
-    "!2sTolai%20Barat%2C%20Torue%2C%20Parigi%20Moutong",
-    "!5e0!3m2!1sid!2sid!4v1712150000000!5m2!1sid!2sid",
-  ].join("");
+  // Alamat presisi (Plus Code) yang Anda berikan untuk memunculkan PIN merah
+  const pinLocation = "286J+F85, Tolai, Kec. Torue, Kabupaten Parigi Moutong, Sulawesi Tengah 94473";
+  
+  // URL Embed yang jauh lebih bersih dan dijamin memunculkan PIN
+  const embedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(pinLocation)}&t=&z=17&ie=UTF8&iwloc=&output=embed`;
 
-  const mapsUrl = s.googleMapsUrl || "https://maps.google.com";
+  // URL ketika tombol "Buka di Google Maps" diklik (Arahkan langsung ke pencarian pin tersebut)
+  const mapsUrl = s.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pinLocation)}`;
 
   const latNum = parseFloat(lat).toFixed(6);
   const lngNum = parseFloat(lng).toFixed(6);

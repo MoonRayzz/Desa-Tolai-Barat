@@ -1,3 +1,4 @@
+// File: components/layout/Navbar.tsx
 "use client";
 
 import Link from "next/link";
@@ -9,6 +10,7 @@ const NAV_LINKS = [
   { label: "Profil",   href: "/profil"   },
   { label: "Berita",   href: "/berita"   },
   { label: "Wisata",   href: "/wisata"   },
+  { label: "BUMDes",   href: "/bumdes"   }, // -> INI MENU BARUNYA
   { label: "UMKM",     href: "/umkm"     },
   { label: "Galeri",   href: "/galeri"   },
   { label: "Survei",   href: "/survei"   },
