@@ -150,11 +150,19 @@ export default function AdminLayananPage() {
     }
   }
 
+  // PERBAIKAN: Ubah label agar lebih bermakna bagi Admin
   const TEMA_OPTIONS: { value: LayananTema; label: string }[] = [
-    { value: "ocean",  label: "Biru Laut (Ocean)"  },
-    { value: "gold",   label: "Emas (Gold)"         },
-    { value: "forest", label: "Hijau (Forest)"      },
+    { value: "ocean",  label: "Administrasi Umum (Biru)"  },
+    { value: "gold",   label: "Sosial & Kesejahteraan (Kuning)" },
+    { value: "forest", label: "Perizinan & Usaha (Hijau)" },
   ];
+
+  // PERBAIKAN: Mapping label untuk tampilan tabel Admin
+  const KATEGORI_LABEL: Record<string, string> = {
+    ocean: "Administrasi Umum",
+    gold: "Sosial & Kesejahteraan",
+    forest: "Perizinan Usaha"
+  };
 
   return (
     <div style={{ padding: "32px" }}>
@@ -204,7 +212,7 @@ export default function AdminLayananPage() {
           border: "2px solid var(--color-ocean-200)",
         }}>
           <h2 style={{
-            fontSize: "1rem", fontWeight: 600,
+            fontSize: "1.1rem", fontWeight: 600,
             color: "var(--color-ocean-900)", marginBottom: "20px",
           }}>
             {editId ? "Edit Layanan" : "Tambah Layanan Baru"}
@@ -260,8 +268,8 @@ export default function AdminLayananPage() {
               marginBottom: "16px",
             }}>
               <div>
-                <label style={ls}>Tema Warna</label>
-                <div style={{ display: "flex", gap: "8px" }}>
+                <label style={ls}>Kategori Layanan</label>
+                <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
                   {TEMA_OPTIONS.map((t) => {
                     const c = TEMA_COLORS[t.value];
                     const active = form.tema === t.value;
@@ -290,9 +298,21 @@ export default function AdminLayananPage() {
                     );
                   })}
                 </div>
+                
+                {/* PERBAIKAN: Kotak Panduan Admin */}
+                <div style={{ 
+                  background: "rgba(11, 94, 107, 0.05)", borderLeft: "3px solid var(--color-ocean-400)", 
+                  padding: "12px 16px", borderRadius: "0 8px 8px 0", fontSize: "0.8rem", color: "var(--color-ocean-700)" 
+                }}>
+                  <strong>💡 Panduan Kategori:</strong><br/>
+                  • <b>Administrasi Umum:</b> Untuk surat-surat kependudukan (Cth: KTP, Domisili, Pengantar SKCK).<br/>
+                  • <b>Sosial & Kesejahteraan:</b> Untuk bantuan dan kelayakan (Cth: Surat Keterangan Tidak Mampu).<br/>
+                  • <b>Perizinan & Usaha:</b> Untuk legalitas bisnis dan acara (Cth: Surat Keterangan Usaha, Izin Keramaian).
+                </div>
+
               </div>
               <div>
-                <label style={ls}>Urutan</label>
+                <label style={ls}>Urutan Tampil</label>
                 <input
                   type="number"
                   value={form.urutan}
@@ -311,7 +331,7 @@ export default function AdminLayananPage() {
                 alignItems: "center",
                 marginBottom: "8px",
               }}>
-                <label style={{ ...ls, marginBottom: 0 }}>Persyaratan *</label>
+                <label style={{ ...ls, marginBottom: 0 }}>Persyaratan Dokumen *</label>
                 <button
                   type="button"
                   onClick={addSyarat}
@@ -378,30 +398,10 @@ export default function AdminLayananPage() {
               />
               <label
                 htmlFor="layanan-aktif"
-                style={{ fontSize: "0.875rem", color: "var(--color-ocean-700)", cursor: "pointer" }}
+                style={{ fontSize: "0.875rem", color: "var(--color-ocean-700)", cursor: "pointer", fontWeight: 500 }}
               >
-                Aktif dan tampil di halaman layanan publik
+                Aktif dan tampil di halaman portal warga
               </label>
-            </div>
-
-            {/* Preview warna */}
-            <div style={{
-              padding: "12px 16px",
-              borderRadius: "10px",
-              background: TEMA_COLORS[form.tema].bg,
-              border: "1px solid " + TEMA_COLORS[form.tema].border,
-              display: "flex", alignItems: "center", gap: "10px",
-              marginBottom: "20px",
-            }}>
-              <span style={{ fontSize: "1.5rem" }}>{form.icon}</span>
-              <div>
-                <div style={{ fontWeight: 600, fontSize: "0.875rem", color: "var(--color-ocean-900)" }}>
-                  {form.judul || "Nama layanan..."}
-                </div>
-                <div style={{ fontSize: "0.72rem", color: TEMA_COLORS[form.tema].text, marginTop: "2px" }}>
-                  Estimasi: {form.waktu}
-                </div>
-              </div>
             </div>
 
             {/* Actions */}
@@ -500,14 +500,14 @@ export default function AdminLayananPage() {
                     </div>
                   </div>
 
-                  {/* Tema badge */}
+                  {/* Tema badge - PERBAIKAN DI SINI */}
                   <span style={{
                     background: c.bg, color: c.text,
                     fontSize: "0.68rem", fontWeight: 600,
-                    padding: "3px 9px", borderRadius: "9999px",
-                    flexShrink: 0,
+                    padding: "4px 10px", borderRadius: "6px",
+                    flexShrink: 0, border: `1px solid ${c.border}`
                   }}>
-                    {l.tema}
+                    {KATEGORI_LABEL[l.tema] || l.tema}
                   </span>
 
                   {/* Toggle aktif */}
@@ -572,11 +572,11 @@ export default function AdminLayananPage() {
                   {l.syarat.map((sy, si) => (
                     <span key={si} style={{
                       background: "white",
-                      border: "0.5px solid var(--color-ocean-200)",
-                      borderRadius: "9999px",
+                      border: "1px solid var(--color-ocean-200)",
+                      borderRadius: "6px",
                       fontSize: "0.7rem",
                       color: "var(--color-ocean-600)",
-                      padding: "2px 10px",
+                      padding: "4px 10px",
                     }}>
                       {sy}
                     </span>

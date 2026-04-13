@@ -32,12 +32,24 @@ export default function AnalyticsPage() {
         getTopCities(10),
         getTopRegions(10),
       ]);
+
+      // FOKUS MASALAH: Filter data anomali (Localhost & lokasi Bot/Server Vercel)
+      const excludeKeywords = ["localhost", "development", "san jose", "santa clara", "california", "madan"];
+
+      const filteredCities = ct.filter(
+        (c) => !excludeKeywords.some((keyword) => (c.city || "").toLowerCase().includes(keyword))
+      );
+
+      const filteredRegions = rg.filter(
+        (r) => !excludeKeywords.some((keyword) => (r.region || "").toLowerCase().includes(keyword))
+      );
+
       setTotal(t);
       setToday(td);
       setMonth(tm);
       setLast7(l7);
-      setCities(ct);
-      setRegions(rg);
+      setCities(filteredCities);
+      setRegions(filteredRegions);
       setLoading(false);
     }
     load();
