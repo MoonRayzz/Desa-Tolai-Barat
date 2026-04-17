@@ -177,10 +177,10 @@ export interface BumdesUnit {
   updatedAt?:  string | null;
 }
 
-// Tambahkan/Ubah di types/index.ts
+// File: types/index.ts (Cari bagian ini dan sesuaikan)
 
 export type PotensiKategori = "makro" | "mikro";
-export type PotensiSektor = "pertanian" | "perikanan" | "perkebunan" | "perdagangan" | "jasa";
+export type PotensiSektor = "pertanian" | "perikanan" | "perkebunan" | "perdagangan" | "jasa" | "pariwisata";
 
 export interface PotensiDesa {
   id:           string;
@@ -188,9 +188,11 @@ export interface PotensiDesa {
   kategori:     PotensiKategori;
   sektor:       PotensiSektor;
   deskripsi:    string;
-  metrik?:      string; // Misal: "446 Hektar" atau "10 Ton/Panen"
+  metrik?:      string; 
+  nilaiEkonomi?: number; // <-- TAMBAHKAN BARIS INI
   image:        string;
   kontakName?:  string;
   whatsapp?:    string;
-  updatedAt?:   string;
+  createdAt?:   string | null;
+  updatedAt?:   string | null;
 }
