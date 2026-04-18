@@ -46,24 +46,27 @@ export const metadata: Metadata = {
     type: "website",
     locale: "id_ID",
     siteName: "Desa Tolai Barat",
-    title: "Website Resmi Desa Tolai Barat",
-    description: "Portal informasi resmi Desa Tolai Barat, pesisir Teluk Tomini, Kecamatan Torue.",
+    title: "Website Resmi Desa Tolai Barat — Pesisir Teluk Tomini",
+    description:
+      "Portal informasi resmi Desa Tolai Barat, Kecamatan Torue, Parigi Moutong, Sulawesi Tengah. " +
+      "Berita desa, wisata Pantai Arjuna, UMKM, dan layanan warga.",
     url: "/",
     images: [
       {
-        url: "/images/potensi-hero.jpg", // Menggunakan gambar resolusi tinggi sebagai default cover
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Desa Tolai Barat",
+        alt: "Desa Tolai Barat — Pesisir Teluk Tomini, Sulawesi Tengah",
       },
     ],
   },
   
   twitter: {
     card: "summary_large_image",
-    title: "Website Resmi Desa Tolai Barat",
-    description: "Portal informasi resmi Desa Tolai Barat, pesisir Teluk Tomini, Kecamatan Torue.",
-    images: ["/images/potensi-hero.jpg"],
+    title: "Website Resmi Desa Tolai Barat — Pesisir Teluk Tomini",
+    description:
+      "Portal informasi resmi Desa Tolai Barat, Kecamatan Torue, Parigi Moutong, Sulawesi Tengah.",
+    images: ["/og-image.jpg"],
   },
 
   verification: {

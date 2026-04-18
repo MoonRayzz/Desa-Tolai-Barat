@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = berita.title;
   // Jika excerpt kosong, ambil dari awal konten html lalu hapus tag HTML-nya
   const description = berita.excerpt || berita.content.substring(0, 160).replace(/<[^>]+>/g, '') + "...";
-  const imageUrl = berita.coverImage || "/images/potensi-hero.jpg";
+  const imageUrl = berita.coverImage || "/og-image.jpg";
 
   return { 
     title: title, 
