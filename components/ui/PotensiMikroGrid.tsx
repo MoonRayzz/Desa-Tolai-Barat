@@ -68,11 +68,10 @@ export default function PotensiMikroGrid({ items }: { items: PotensiDesa[] }) {
       <div
         style={{
           display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
+          alignItems: "flex-start",
+          flexDirection: "column",
           gap: 12,
-          marginBottom: "2rem",
+          marginBottom: "1.5rem",
         }}
       >
         <p style={{ fontSize: 13, color: "#6b7280" }}>
@@ -82,6 +81,7 @@ export default function PotensiMikroGrid({ items }: { items: PotensiDesa[] }) {
           {activeFilter !== "semua" ? ` di sektor ${activeFilter}` : ""}
         </p>
 
+        {/* Scroll horizontal di mobile */}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
           {["semua", ...sektorList].map((f) => {
             const isActive = activeFilter === f;
@@ -118,7 +118,7 @@ export default function PotensiMikroGrid({ items }: { items: PotensiDesa[] }) {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 200px), 1fr))",
           gap: 14,
         }}
       >

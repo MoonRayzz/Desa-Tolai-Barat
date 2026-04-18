@@ -60,11 +60,9 @@ export default async function PotensiPage() {
       ══════════════════════════════════════════════════════════ */}
       <section
         style={{
-          paddingTop: "7rem",
-          paddingBottom: "3rem",
+          padding: "7rem 1.5rem 3rem",
           background: "linear-gradient(160deg, #061b2e 0%, #0d3349 60%, #0f4c6e 100%)",
           textAlign: "center",
-          padding: "7rem 1.5rem 3rem",
           position: "relative",
           overflow: "hidden",
         }}
@@ -104,7 +102,7 @@ export default async function PotensiPage() {
           <h1
             style={{
               fontFamily: "var(--font-display, Georgia, serif)",
-              fontSize: "clamp(2.2rem, 6vw, 4rem)",
+              fontSize: "clamp(2rem, 6vw, 4rem)",
               fontWeight: 800,
               color: "white",
               lineHeight: 1.1,
@@ -116,7 +114,7 @@ export default async function PotensiPage() {
 
           <p
             style={{
-              fontSize: "1.05rem",
+              fontSize: "clamp(0.9rem, 2.5vw, 1.05rem)",
               color: "rgba(255,255,255,0.55)",
               lineHeight: 1.75,
               maxWidth: 520,
@@ -134,8 +132,7 @@ export default async function PotensiPage() {
       ══════════════════════════════════════════════════════════ */}
       <section
         style={{
-          marginTop: "-2.5rem",
-          padding: "0 1.5rem 3rem",
+          padding: "0 1rem 2rem",
           maxWidth: 1200,
           margin: "-2.5rem auto 0",
         }}
@@ -143,11 +140,8 @@ export default async function PotensiPage() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: topMakro.length === 1
-              ? "1fr"
-              : topMakro.length === 2
-                ? "1.4fr 1fr"
-                : "1.5fr 1fr 1fr",
+            /* Mobile: 1 kolom, ≥640px: ikuti jumlah topMakro */
+            gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 300px), 1fr))",
             gap: 12,
           }}
         >
@@ -161,7 +155,7 @@ export default async function PotensiPage() {
           COUNT-UP BANNER
       ══════════════════════════════════════════════════════════ */}
       {totalEkonomi > 0 && (
-        <section style={{ padding: "0 1.5rem 2rem", maxWidth: 1100, margin: "0 auto" }}>
+        <section style={{ padding: "0 1rem 2rem", maxWidth: 1100, margin: "0 auto" }}>
           <CountUpBanner total={totalEkonomi} />
         </section>
       )}
@@ -169,11 +163,11 @@ export default async function PotensiPage() {
       {/* ══════════════════════════════════════════════════════════
           STAT STRIP — ringkasan angka fisik
       ══════════════════════════════════════════════════════════ */}
-      <section style={{ padding: "0 1.5rem 3.5rem", maxWidth: 1100, margin: "0 auto" }}>
+      <section style={{ padding: "0 1rem 3rem", maxWidth: 1100, margin: "0 auto" }}>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
             gap: 10,
           }}
         >
@@ -189,14 +183,14 @@ export default async function PotensiPage() {
                 background: "white",
                 border: "1px solid rgba(0,0,0,0.06)",
                 borderRadius: 16,
-                padding: "1.1rem 1.25rem",
+                padding: "1rem",
                 borderTop: `3px solid ${s.color}`,
                 boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
               }}
             >
               <div
                 style={{
-                  fontSize: 28,
+                  fontSize: "clamp(22px, 5vw, 28px)",
                   fontWeight: 700,
                   color: s.color,
                   lineHeight: 1,
@@ -215,7 +209,7 @@ export default async function PotensiPage() {
           POTENSI PENGEMBANGAN — other makro
       ══════════════════════════════════════════════════════════ */}
       {(otherMakro.length > 0 || true) && (
-        <section style={{ background: "#f0f7ff", padding: "3rem 1.5rem" }}>
+        <section style={{ background: "#f0f7ff", padding: "3rem 1rem" }}>
           <div style={{ maxWidth: 1100, margin: "0 auto" }}>
 
             {/* section divider label */}
@@ -231,6 +225,7 @@ export default async function PotensiPage() {
                   background: "#dbeafe",
                   padding: "4px 14px",
                   borderRadius: 99,
+                  whiteSpace: "nowrap",
                 }}
               >
                 Potensi Pengembangan & Lahan Aktif
@@ -241,7 +236,7 @@ export default async function PotensiPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 240px), 1fr))",
                 gap: 12,
               }}
             >
@@ -261,8 +256,8 @@ export default async function PotensiPage() {
                 >
                   <div
                     style={{
-                      width: 64,
-                      height: 64,
+                      width: 56,
+                      height: 56,
                       borderRadius: 12,
                       overflow: "hidden",
                       flexShrink: 0,
@@ -270,7 +265,7 @@ export default async function PotensiPage() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      fontSize: 28,
+                      fontSize: 26,
                     }}
                   >
                     {item.image
@@ -318,8 +313,8 @@ export default async function PotensiPage() {
               >
                 <div
                   style={{
-                    width: 64,
-                    height: 64,
+                    width: 56,
+                    height: 56,
                     borderRadius: 12,
                     background: "#f3f4f6",
                     display: "flex",
@@ -345,7 +340,7 @@ export default async function PotensiPage() {
       {/* ══════════════════════════════════════════════════════════
           MIKRO SECTION — client component dengan filter
       ══════════════════════════════════════════════════════════ */}
-      <section style={{ background: "white", padding: "4rem 1.5rem" }}>
+      <section style={{ background: "white", padding: "4rem 1rem" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
 
           {/* section header */}
@@ -366,13 +361,13 @@ export default async function PotensiPage() {
             <h2
               style={{
                 fontFamily: "var(--font-display, Georgia, serif)",
-                fontSize: "clamp(1.6rem, 4vw, 2.6rem)",
+                fontSize: "clamp(1.5rem, 4vw, 2.6rem)",
                 fontWeight: 700,
                 color: "#0d2b40",
                 marginBottom: 12,
               }}
             >
-              UMKM & Penggerak Ekonomi Warga
+              UMKM &amp; Penggerak Ekonomi Warga
             </h2>
             <p style={{ fontSize: 14, color: "#6b7280", maxWidth: 520, margin: "0 auto" }}>
               Daftar unit usaha, kios, dan toko yang bermitra atau beroperasi di kawasan Desa Tolai Barat.
@@ -406,7 +401,7 @@ function MakroHeroCard({
         position: "relative",
         borderRadius: 20,
         overflow: "hidden",
-        height: featured ? 420 : 320,
+        height: featured ? "clamp(280px, 50vw, 420px)" : "clamp(220px, 40vw, 320px)",
         background: "#0d2b40",
         boxShadow: "0 8px 40px rgba(0,0,0,0.25)",
       }}
@@ -454,7 +449,7 @@ function MakroHeroCard({
           position: "absolute",
           top: 16,
           right: 20,
-          fontSize: 36,
+          fontSize: 32,
           filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.4))",
         }}
       >
@@ -468,7 +463,7 @@ function MakroHeroCard({
           bottom: 0,
           left: 0,
           right: 0,
-          padding: "1.5rem",
+          padding: "1.25rem",
         }}
       >
         <div
@@ -486,7 +481,7 @@ function MakroHeroCard({
         <h3
           style={{
             fontFamily: "var(--font-display, Georgia, serif)",
-            fontSize: featured ? 28 : 20,
+            fontSize: featured ? "clamp(18px, 4vw, 28px)" : "clamp(15px, 3vw, 20px)",
             fontWeight: 800,
             color: "white",
             lineHeight: 1.15,
