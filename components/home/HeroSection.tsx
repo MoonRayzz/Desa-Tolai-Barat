@@ -92,7 +92,7 @@ export default function HeroSection() {
             textTransform: "uppercase", letterSpacing: "0.05em"
           }}>
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#F5C842", display: "inline-block", animation: "pulse 4s cubic-bezier(0.4,0,0.6,1) infinite" }} />
-            esa Tolai Barat — Mewujudkan Desa PADI(Produktif, Aman, Damai, Indah)
+             Desa Tolai Barat — Mewujudkan Desa PADI(Produktif, Aman, Damai, Indah)
           </div>
 
           <h1 style={{
