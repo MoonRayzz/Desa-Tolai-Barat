@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 const videoJsonLd = {
   "@context": "https://schema.org",
   "@type": "VideoObject",
-  name: "Desa Tolai Barat — Pesisir Teluk Tomini",
+  name: "Desa Tolai Barat — Mewujudkan Desa PADI(Produktif, Aman, Damai, Indah)",
   description:
     "Video latar beranda website resmi Desa Tolai Barat yang menampilkan keindahan pesisir Teluk Tomini, kearifan lokal, dan kehidupan masyarakat desa.",
   thumbnailUrl: [`${BASE_URL}/og-image.jpg`],
