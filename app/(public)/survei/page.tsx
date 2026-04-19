@@ -1,3 +1,4 @@
+// File: app/(public)/survei/page.tsx
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getAktifSurvei, getAllSurvei } from "@/lib/firebase/survei";

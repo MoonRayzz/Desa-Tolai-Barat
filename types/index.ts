@@ -101,10 +101,14 @@ export interface LayananDesa {
 }
 
 // ─── Survei ──────────────────────────────────────────────────────────────────
+export type TipePertanyaan = "pilihan_ganda" | "kotak_centang" | "paragraf" | "skala";
+
 export interface PertanyaanSurvei {
-  id:   string;
+  id: string;
   teks: string;
+  tipe: TipePertanyaan; // <-- BARU
   opsi: string[];
+  skalaMax?: number; // <-- BARU: Untuk batas maksimal skala (misal 5)
 }
 
 export interface Survei {
@@ -122,7 +126,8 @@ export interface Survei {
 export interface JawabanSurvei {
   id:          string;
   surveiId:    string;
-  jawaban:     Record<string, string>;
+  // Jawaban sekarang bisa berupa string (radio/teks), string[] (checkbox), atau number (skala)
+  jawaban:     Record<string, any>; 
   submittedAt: string;
 }
 
@@ -133,10 +138,12 @@ export interface HasilOpsi {
 }
 
 export interface HasilPertanyaan {
-  pertanyaanId:  string;
-  teks:          string;
-  opsi:          HasilOpsi[];
-  totalJawaban:  number;
+  pertanyaanId: string;
+  teks:         string;
+  tipe:         TipePertanyaan;
+  opsi:         HasilOpsi[];
+  jawabanTeks?: string[]; // <-- BARU: Khusus untuk jawaban tipe paragraf
+  totalJawaban: number;
 }
 
 // ─── Aspirasi ─────────────────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
+// File: lib/firebase/survei.ts
 import {
   collection, getDocs, getDoc, addDoc, updateDoc, deleteDoc,
-  doc, orderBy, query, where, serverTimestamp, increment,
+  doc, orderBy, query, where, increment
 } from "firebase/firestore";
 import { db } from "./config";
 import type { Survei, JawabanSurvei, HasilPertanyaan } from "@/types";
@@ -87,7 +88,7 @@ export async function deleteSurvei(id: string): Promise<void> {
 
 export async function submitJawaban(
   surveiId: string,
-  jawaban:  Record<string, string>
+  jawaban:  Record<string, any>
 ): Promise<void> {
   await addDoc(collection(db, COL_JAWABAN), {
     surveiId,
@@ -114,9 +115,7 @@ export async function getAllJawabanBySurvei(
   }
 }
 
-export async function getHasilSurvei(
-  surveiId: string
-): Promise<HasilPertanyaan[]> {
+export async function getHasilSurvei(surveiId: string): Promise<HasilPertanyaan[]> {
   const [survei, jawabanList] = await Promise.all([
     getSurveiById(surveiId),
     getAllJawabanBySurvei(surveiId),
@@ -124,29 +123,49 @@ export async function getHasilSurvei(
   if (!survei) return [];
 
   return survei.pertanyaan.map((p) => {
+    const tipe = p.tipe || "pilihan_ganda"; // Backward compatibility untuk survei lama
     const countMap: Record<string, number> = {};
-    p.opsi.forEach((o) => { countMap[o] = 0; });
+    const jawabanTeks: string[] = [];
 
+    // Inisialisasi opsi untuk bar chart agar opsi yang tidak dipilih tetap tampil 0
+    if (tipe === "pilihan_ganda" || tipe === "kotak_centang") {
+      p.opsi.forEach((o) => { countMap[o] = 0; });
+    } else if (tipe === "skala") {
+      const max = p.skalaMax || 5;
+      for (let i = 1; i <= max; i++) { countMap[i.toString()] = 0; }
+    }
+
+    // Hitung jawaban dari seluruh responden
     jawabanList.forEach((j) => {
-      const pilihan = j.jawaban[p.id];
-      if (pilihan !== undefined) {
-        countMap[pilihan] = (countMap[pilihan] || 0) + 1;
+      const jawabanUser = j.jawaban[p.id];
+      if (jawabanUser !== undefined && jawabanUser !== null && jawabanUser !== "") {
+        if (tipe === "paragraf") {
+          jawabanTeks.push(jawabanUser.toString());
+        } else if (tipe === "kotak_centang" && Array.isArray(jawabanUser)) {
+          // Karena checkbox bisa lebih dari 1 pilihan
+          jawabanUser.forEach(val => { countMap[val] = (countMap[val] || 0) + 1; });
+        } else {
+          countMap[jawabanUser.toString()] = (countMap[jawabanUser.toString()] || 0) + 1;
+        }
       }
     });
 
-    const totalJawaban = Object.values(countMap).reduce((a, b) => a + b, 0);
+    // Kalkulasi persentase dan total
+    const totalJawaban = tipe === "paragraf" 
+      ? jawabanTeks.length 
+      : Object.values(countMap).reduce((a, b) => a + b, 0);
 
     return {
       pertanyaanId: p.id,
-      teks:         p.teks,
+      teks: p.teks,
+      tipe: tipe,
       totalJawaban,
-      opsi: p.opsi.map((o) => ({
-        teks:   o,
-        count:  countMap[o] || 0,
-        persen: totalJawaban > 0
-          ? Math.round(((countMap[o] || 0) / totalJawaban) * 100)
-          : 0,
-      })),
+      jawabanTeks: tipe === "paragraf" ? jawabanTeks : undefined,
+      opsi: (tipe !== "paragraf") ? Object.keys(countMap).map((key) => ({
+        teks: key,
+        count: countMap[key] || 0,
+        persen: totalJawaban > 0 ? Math.round(((countMap[key] || 0) / totalJawaban) * 100) : 0,
+      })) : [],
     };
   });
 }

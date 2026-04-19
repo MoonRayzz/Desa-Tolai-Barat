@@ -1,18 +1,12 @@
+// File: app/admin/survei/[id]/hasil/page.tsx
 "use client";
 
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import {
-  getSurveiById,
-  getHasilSurvei,
-} from "@/lib/firebase/survei";
+import { getSurveiById, getHasilSurvei } from "@/lib/firebase/survei";
 import type { Survei, HasilPertanyaan } from "@/types";
 
-export default function HasilSurveiPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function HasilSurveiPage({ params }: { params: Promise<{ id: string }> }) {
   const { id }  = use(params);
   const router  = useRouter();
 
@@ -21,236 +15,81 @@ export default function HasilSurveiPage({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function load() {
-      const [s, h] = await Promise.all([
-        getSurveiById(id),
-        getHasilSurvei(id),
-      ]);
-      setSurvei(s);
-      setHasil(h);
-      setLoading(false);
-    }
-    load();
+    Promise.all([getSurveiById(id), getHasilSurvei(id)]).then(([s, h]) => {
+      setSurvei(s); setHasil(h); setLoading(false);
+    });
   }, [id]);
 
-  if (loading) return (
-    <div style={{ padding: "32px", color: "var(--color-ocean-500)" }}>
-      Memuat hasil survei...
-    </div>
-  );
-
-  if (!survei) return (
-    <div style={{ padding: "32px" }}>
-      <button onClick={() => router.back()} className="btn-ghost">
-        back Kembali
-      </button>
-      <p style={{ color: "var(--color-ocean-500)", marginTop: "16px" }}>
-        Survei tidak ditemukan.
-      </p>
-    </div>
-  );
+  if (loading) return <div className="p-8 text-ocean-500">Memuat hasil komputasi...</div>;
+  if (!survei) return <div className="p-8">Survei tidak ditemukan.</div>;
 
   return (
-    <div style={{ padding: "32px" }}>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
-        <button
-          onClick={() => router.push("/admin/survei")}
-          style={{
-            background: "none", border: "none", cursor: "pointer",
-            color: "var(--color-ocean-500)", fontSize: "1.1rem",
-          }}
-        >
-          back
-        </button>
+    <div className="p-4 md:p-8 max-w-6xl mx-auto">
+      <div className="flex items-center gap-4 mb-8">
+        <button onClick={() => router.push("/admin/survei")} className="text-ocean-500 hover:text-ocean-800 font-bold">← Kembali</button>
         <div>
-          <h1 style={{
-            fontFamily: "var(--font-display)", fontWeight: 700,
-            fontSize: "1.5rem", color: "var(--color-ocean-900)",
-          }}>
-            Hasil Survei
-          </h1>
-          <p style={{ fontSize: "0.82rem", color: "var(--color-ocean-500)", marginTop: "2px" }}>
-            {survei.judul}
-          </p>
+          <h1 className="font-display font-bold text-2xl text-ocean-900">Analisis Survei</h1>
+          <p className="text-ocean-500 text-sm">{survei.judul}</p>
         </div>
       </div>
 
-      {/* Stat total responden */}
-      <div style={{
-        display: "flex", gap: "16px", marginBottom: "28px",
-        flexWrap: "wrap",
-      }}>
-        <div style={{
-          background: "white", borderRadius: "14px",
-          padding: "18px 24px", boxShadow: "var(--shadow-card)",
-          border: "1px solid var(--color-ocean-100)",
-          minWidth: "160px",
-        }}>
-          <div style={{ fontSize: "0.78rem", color: "var(--color-ocean-500)", marginBottom: "6px" }}>
-            Total Responden
-          </div>
-          <div style={{
-            fontFamily: "var(--font-display)", fontWeight: 700,
-            fontSize: "2rem", color: "var(--color-ocean-700)", lineHeight: 1,
-          }}>
-            {survei.totalResponden}
-          </div>
-        </div>
-        <div style={{
-          background: "white", borderRadius: "14px",
-          padding: "18px 24px", boxShadow: "var(--shadow-card)",
-          border: "1px solid var(--color-ocean-100)",
-          minWidth: "160px",
-        }}>
-          <div style={{ fontSize: "0.78rem", color: "var(--color-ocean-500)", marginBottom: "6px" }}>
-            Jumlah Pertanyaan
-          </div>
-          <div style={{
-            fontFamily: "var(--font-display)", fontWeight: 700,
-            fontSize: "2rem", color: "var(--color-gold-600)", lineHeight: 1,
-          }}>
-            {survei.pertanyaan.length}
-          </div>
-        </div>
-        <div style={{
-          background: "white", borderRadius: "14px",
-          padding: "18px 24px", boxShadow: "var(--shadow-card)",
-          border: "1px solid var(--color-ocean-100)",
-          minWidth: "160px",
-        }}>
-          <div style={{ fontSize: "0.78rem", color: "var(--color-ocean-500)", marginBottom: "6px" }}>
-            Status
-          </div>
-          <div style={{
-            fontFamily: "var(--font-display)", fontWeight: 700,
-            fontSize: "1.1rem",
-            color: survei.aktif ? "var(--color-forest-600)" : "var(--color-ocean-400)",
-            lineHeight: 1,
-          }}>
-            {survei.aktif ? "Aktif" : "Nonaktif"}
-          </div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="bg-white p-6 rounded-2xl shadow-card border border-ocean-100 text-center"><p className="text-ocean-500 text-sm font-bold uppercase">Total Responden</p><p className="text-4xl font-display font-bold text-ocean-900 mt-2">{survei.totalResponden}</p></div>
+        <div className="bg-white p-6 rounded-2xl shadow-card border border-ocean-100 text-center"><p className="text-ocean-500 text-sm font-bold uppercase">Jumlah Soal</p><p className="text-4xl font-display font-bold text-gold-600 mt-2">{survei.pertanyaan.length}</p></div>
+        <div className="bg-white p-6 rounded-2xl shadow-card border border-ocean-100 text-center"><p className="text-ocean-500 text-sm font-bold uppercase">Status</p><p className={`text-3xl font-display font-bold mt-2 ${survei.aktif ? 'text-forest-500' : 'text-red-500'}`}>{survei.aktif ? "Aktif" : "Ditutup"}</p></div>
       </div>
 
-      {/* Tidak ada responden */}
-      {survei.totalResponden === 0 && (
-        <div style={{
-          textAlign: "center", padding: "80px",
-          background: "white", borderRadius: "20px",
-          boxShadow: "var(--shadow-card)", color: "var(--color-ocean-400)",
-        }}>
-          <div style={{ fontSize: "3rem", marginBottom: "16px" }}>📊</div>
-          <p style={{ fontSize: "1rem", color: "var(--color-ocean-600)" }}>
-            Belum ada warga yang mengisi survei ini.
-          </p>
-        </div>
-      )}
+      <div className="space-y-8">
+        {hasil.map((h, idx) => {
+          const maxCount = Math.max(...h.opsi.map((o) => o.count), 1);
+          const isParagraf = h.tipe === "paragraf";
 
-      {/* Hasil per pertanyaan */}
-      {survei.totalResponden > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-          {hasil.map((h, idx) => {
-            const maxCount = Math.max(...h.opsi.map((o) => o.count), 1);
-
-            return (
-              <div key={h.pertanyaanId} style={{
-                background: "white", borderRadius: "16px",
-                padding: "24px", boxShadow: "var(--shadow-card)",
-                border: "1px solid var(--color-ocean-100)",
-              }}>
-                {/* Pertanyaan */}
-                <div style={{
-                  display: "flex", gap: "12px", alignItems: "flex-start",
-                  marginBottom: "20px", paddingBottom: "16px",
-                  borderBottom: "1px solid var(--color-ocean-100)",
-                }}>
-                  <span style={{
-                    background: "var(--color-ocean-100)",
-                    color: "var(--color-ocean-700)",
-                    fontSize: "0.78rem", fontWeight: 700,
-                    padding: "4px 10px", borderRadius: "9999px",
-                    flexShrink: 0,
-                  }}>
-                    P{idx + 1}
-                  </span>
-                  <h3 style={{
-                    fontFamily: "var(--font-display)", fontWeight: 600,
-                    fontSize: "1rem", color: "var(--color-ocean-900)",
-                    lineHeight: 1.4, flex: 1,
-                  }}>
-                    {h.teks}
-                  </h3>
-                  <span style={{
-                    fontSize: "0.75rem", color: "var(--color-ocean-500)",
-                    flexShrink: 0,
-                  }}>
-                    {h.totalJawaban} jawaban
-                  </span>
-                </div>
-
-                {/* Bar chart per opsi */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                  {h.opsi
-                    .sort((a, b) => b.count - a.count)
-                    .map((opsi) => {
-                      const widthPct = maxCount > 0
-                        ? (opsi.count / maxCount) * 100
-                        : 0;
-                      const isTop = opsi.count === maxCount && opsi.count > 0;
-
-                      return (
-                        <div key={opsi.teks}>
-                          <div style={{
-                            display: "flex", justifyContent: "space-between",
-                            alignItems: "center", marginBottom: "5px",
-                            fontSize: "0.85rem",
-                          }}>
-                            <span style={{
-                              color: "var(--color-ocean-900)",
-                              fontWeight: isTop ? 600 : 400,
-                              display: "flex", alignItems: "center", gap: "6px",
-                            }}>
-                              {isTop && opsi.count > 0 && (
-                                <span style={{ fontSize: "0.75rem" }}>top</span>
-                              )}
-                              {opsi.teks}
-                            </span>
-                            <span style={{
-                              color: isTop
-                                ? "var(--color-ocean-700)"
-                                : "var(--color-ocean-500)",
-                              fontWeight: isTop ? 600 : 400,
-                              fontSize: "0.82rem",
-                            }}>
-                              {opsi.count} ({opsi.persen}%)
-                            </span>
-                          </div>
-                          <div style={{
-                            height: "10px",
-                            background: "var(--color-ocean-100)",
-                            borderRadius: "9999px",
-                            overflow: "hidden",
-                          }}>
-                            <div style={{
-                              height: "100%",
-                              width: widthPct + "%",
-                              background: isTop
-                                ? "var(--color-ocean-600)"
-                                : "var(--color-ocean-300)",
-                              borderRadius: "9999px",
-                              transition: "width 0.6s ease",
-                            }} />
-                          </div>
-                        </div>
-                      );
-                    })}
+          return (
+            <div key={h.pertanyaanId} className="bg-white rounded-3xl p-8 shadow-card border border-ocean-100">
+              <div className="flex items-start gap-4 mb-6 pb-6 border-b border-ocean-50">
+                <span className="bg-ocean-100 text-ocean-700 px-4 py-1.5 rounded-full font-bold text-sm">P{idx + 1}</span>
+                <div className="flex-1">
+                  <h3 className="font-display font-bold text-lg text-ocean-900 mb-1">{h.teks}</h3>
+                  <p className="text-xs font-bold text-ocean-400 uppercase tracking-widest">{h.tipe.replace('_', ' ')} • {h.totalJawaban} Jawaban</p>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      )}
+
+              {/* Render untuk Pilihan Ganda / Checkbox / Skala (Bar Chart) */}
+              {!isParagraf && (
+                <div className="space-y-4">
+                  {h.opsi.sort((a, b) => h.tipe === "skala" ? Number(a.teks) - Number(b.teks) : b.count - a.count).map((opsi) => (
+                    <div key={opsi.teks}>
+                      <div className="flex justify-between text-sm mb-1 font-medium">
+                        <span className="text-ocean-800">{h.tipe === "skala" ? `Rating ${opsi.teks}` : opsi.teks}</span>
+                        <span className="text-ocean-600">{opsi.count} ({opsi.persen}%)</span>
+                      </div>
+                      <div className="h-3 bg-ocean-50 rounded-full overflow-hidden">
+                        <div className="h-full bg-ocean-500 rounded-full transition-all duration-1000" style={{ width: `${(opsi.count / maxCount) * 100}%` }}></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Render untuk Teks Paragraf (Chat Bubbles) */}
+              {isParagraf && (
+                <div className="bg-ocean-50 rounded-2xl p-4 max-h-[400px] overflow-y-auto space-y-3 custom-scrollbar">
+                  {h.jawabanTeks && h.jawabanTeks.length > 0 ? (
+                    h.jawabanTeks.map((teks, i) => (
+                      <div key={i} className="bg-white p-4 rounded-xl shadow-sm text-ocean-800 text-sm border border-ocean-100">
+                        <span className="text-xs text-ocean-400 font-bold block mb-1">Responden {i + 1}</span>
+                        "{teks}"
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-ocean-400 font-medium">Belum ada jawaban teks masuk.</div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
