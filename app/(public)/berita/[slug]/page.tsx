@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   
   const title = berita.title;
   // Jika excerpt kosong, ambil dari awal konten html lalu hapus tag HTML-nya
-  const description = berita.excerpt || berita.content.substring(0, 160).replace(/<[^>]+>/g, '') + "...";
+  const description = berita.excerpt || (berita.content ? berita.content.substring(0, 160).replace(/<[^>]+>/g, '') + "..." : "Berita Desa Tolai Barat");
   const imageUrl = berita.coverImage || "/og-image.jpg";
 
   return { 
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: title,
       description: description,
       type: "article",
-      publishedTime: berita.publishedAt ? new Date(berita.publishedAt).toISOString() : undefined,
+      publishedTime: (berita.publishedAt && !isNaN(new Date(berita.publishedAt).getTime())) ? new Date(berita.publishedAt).toISOString() : undefined,
       authors: [berita.author || "Admin Desa"],
       images: [{ url: imageUrl }],
     },
@@ -126,7 +126,7 @@ export default async function BeritaDetailPage({ params }: Props) {
           {/* Konten — disanitasi DOMPurify untuk cegah XSS */}
           <div
             className="prose-desa"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(berita.content) }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(berita.content || "") }}
           />
 
           <div style={{
