@@ -78,127 +78,79 @@ export default function PengumumanBanner() {
             style={{
               background: s.bg,
               color: s.text,
-              display: "flex",
-              alignItems: "center",
-              gap: "20px",            // Jarak antar elemen diperlebar
-              padding: "16px 24px",   // Padding diperbesar agar tidak sesak
               borderBottom: "1px solid rgba(0,0,0,0.1)",
             }}
+            // Responsif: di HP bertumpuk (flex-col) dan lebih rapat, di layar besar berjejer kiri-kanan
+            className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5 p-4 sm:py-4 sm:px-6 relative"
           >
-            {/* Ikon diperbesar */}
-            <span style={{ fontSize: "1.75rem", flexShrink: 0 }}>{s.icon}</span>
+            <div className="flex items-start sm:items-center gap-3 flex-1 min-w-0 pr-8 sm:pr-0">
+              {/* Ikon */}
+              <span className="text-2xl sm:text-3xl shrink-0 leading-none">{s.icon}</span>
 
-            {/* Area Teks Utama */}
-            <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "6px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-                {/* Judul diperbesar */}
-                <span style={{ fontWeight: 700, fontSize: "1.15rem", lineHeight: 1.3 }}>
-                  {item.title}
-                </span>
-                
-                {/* Label Kategori */}
-                <span
-                  style={{
-                    background: "rgba(0,0,0,0.15)",
-                    fontSize: "0.8rem",
-                    fontWeight: 600,
-                    padding: "4px 12px",
-                    borderRadius: "9999px",
-                    textTransform: "capitalize",
-                  }}
-                >
-                  {item.type}
-                </span>
+              {/* Area Teks Utama */}
+              <div className="flex flex-col gap-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Judul */}
+                  <span className="font-bold text-base sm:text-lg leading-snug">
+                    {item.title}
+                  </span>
+                  
+                  {/* Label Kategori */}
+                  <span
+                    className="text-xs font-semibold px-2 py-0.5 rounded-full capitalize"
+                    style={{ background: "rgba(0,0,0,0.15)" }}
+                  >
+                    {item.type}
+                  </span>
+                </div>
+
+                {/* Isi / Keterangan */}
+                {item.content.trim() !== "" && (
+                  <span className="text-sm sm:text-base opacity-95 leading-relaxed">
+                    {item.content.length > 150
+                      ? item.content.slice(0, 150) + "..."
+                      : item.content}
+                  </span>
+                )}
               </div>
-
-              {/* Isi / Keterangan diperbesar */}
-              {item.content.trim() !== "" && (
-                <span
-                  style={{
-                    fontSize: "1rem",
-                    opacity: 0.95,
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {item.content.length > 150
-                    ? item.content.slice(0, 150) + "..."
-                    : item.content}
-                </span>
-              )}
             </div>
 
-            {/* Label Tanggal Selesai */}
-            {endLabel && (
-              <span
-                style={{
-                  fontSize: "0.9rem",
-                  opacity: 0.85,
-                  flexShrink: 0,
-                  whiteSpace: "nowrap",
-                  display: "none", // Sembunyikan di layar sangat kecil agar tidak merusak layout
-                }}
-                className="sm:block" // Tampilkan di layar ukuran hp (landscape) ke atas
-              >
-                s/d {endLabel}
-              </span>
-            )}
+            <div className="flex items-center gap-3 self-start sm:self-auto w-full sm:w-auto pl-10 sm:pl-0">
+                {/* Label Tanggal Selesai */}
+                {endLabel && (
+                  <span className="text-xs sm:text-sm opacity-85 shrink-0 hidden lg:block">
+                    s/d {endLabel}
+                  </span>
+                )}
 
-            {/* Tombol Link (Opsional) */}
-            {item.link && (
-              <a
-                href={item.link}
-                style={{
-                  display: "inline-block",
-                  padding: "8px 16px",
-                  fontSize: "0.9rem",
-                  fontWeight: 700,
-                  color: s.bg,               // Terbalik: teks warna background
-                  backgroundColor: s.text,   // Terbalik: background warna teks
-                  borderRadius: "8px",
-                  textDecoration: "none",
-                  whiteSpace: "nowrap",
-                  flexShrink: 0,
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                  transition: "transform 0.2s, opacity 0.2s",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
-                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-                onClick={(e) => {
-                  // Berikan sedikit efek saat diklik
-                  e.currentTarget.style.transform = "scale(0.95)";
-                  setTimeout(() => {
-                    if (e.target) (e.target as HTMLElement).style.transform = "scale(1)";
-                  }, 100);
-                }}
-              >
-                {item.linkText || "Lihat Detail"}
-              </a>
-            )}
+                {/* Tombol Link (Opsional) */}
+                {item.link && (
+                  <a
+                    href={item.link}
+                    style={{
+                      color: s.bg,               // Terbalik: teks warna background
+                      backgroundColor: s.text,   // Terbalik: background warna teks
+                    }}
+                    className="inline-block px-4 py-2 text-xs sm:text-sm font-bold rounded-lg no-underline whitespace-nowrap shrink-0 shadow-sm transition hover:opacity-90 active:scale-95"
+                  >
+                    {item.linkText || "Lihat Detail"}
+                  </a>
+                )}
+            </div>
 
-            {/* Tombol Tutup (X) diperbesar */}
+            {/* Tombol Tutup (X) */}
             <button
               onClick={() => dismiss(item.id)}
               aria-label="Tutup pengumuman"
+              className="absolute top-3 right-3 sm:relative sm:top-0 sm:right-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shrink-0 border-none cursor-pointer transition"
               style={{
                 background: "rgba(0,0,0,0.1)",
-                border: "none",
                 color: s.text,
-                cursor: "pointer",
-                fontSize: "1.5rem",
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                marginLeft: "8px",
-                transition: "background 0.2s",
               }}
               onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.2)")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.1)")}
             >
-              &times;
+              <span className="text-lg sm:text-xl leading-none">&times;</span>
             </button>
           </div>
         );
