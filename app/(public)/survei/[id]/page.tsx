@@ -25,7 +25,6 @@ export default function SurveiDetailPage({ params }: { params: Promise<{ id: str
     });
   }, [id, router]);
 
-  // Logika Penyimpanan Jawaban (Support Multiple Types)
   function handleInput(pId: string, val: any, tipe: string) {
     setJawaban(prev => {
       if (tipe === "kotak_centang") {
@@ -58,7 +57,6 @@ export default function SurveiDetailPage({ params }: { params: Promise<{ id: str
   if (loading) return <div className="min-h-screen flex items-center justify-center text-ocean-500">Memuat survei elegan...</div>;
   if (!survei) return null;
 
-  // Tampilan "Sudah Selesai / Sudah Pernah Isi"
   if ((sudahIsi && !selesai) || selesai) return (
     <div className="min-h-screen bg-ocean-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-[2.5rem] p-10 shadow-xl max-w-lg w-full text-center border border-ocean-100">
@@ -70,14 +68,12 @@ export default function SurveiDetailPage({ params }: { params: Promise<{ id: str
     </div>
   );
 
-  // Kalkulasi Progress
   const totalP = survei.pertanyaan.length;
   const sudahDijawab = survei.pertanyaan.filter(p => p.tipe === "kotak_centang" ? (jawaban[p.id]?.length > 0) : !!jawaban[p.id]).length;
   const progress = totalP > 0 ? Math.round((sudahDijawab / totalP) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-sand-50 pb-20 font-sans">
-      {/* Header Sticky (Typeform Style) */}
       <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-ocean-100 shadow-sm px-4 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <div className="font-bold text-ocean-900 line-clamp-1">{survei.judul}</div>
@@ -100,9 +96,6 @@ export default function SurveiDetailPage({ params }: { params: Promise<{ id: str
                   <span className="text-ocean-400 mr-3">{idx + 1}.</span>{p.teks}
                 </h3>
 
-                {/* RENDER INPUT BERDASARKAN TIPE */}
-                
-                {/* 1. PILIHAN GANDA (Radio) */}
                 {t === "pilihan_ganda" && (
                   <div className="space-y-3">
                     {p.opsi.map(o => (
@@ -116,7 +109,6 @@ export default function SurveiDetailPage({ params }: { params: Promise<{ id: str
                   </div>
                 )}
 
-                {/* 2. KOTAK CENTANG (Checkbox) */}
                 {t === "kotak_centang" && (
                   <div className="space-y-3">
                     <p className="text-xs text-ocean-400 font-bold uppercase tracking-widest mb-2">* Bisa pilih lebih dari satu</p>
@@ -134,7 +126,6 @@ export default function SurveiDetailPage({ params }: { params: Promise<{ id: str
                   </div>
                 )}
 
-                {/* 3. SKALA BIPOLAR (1-5 / 1-10) */}
                 {t === "skala" && (
                   <div>
                     <div className="flex justify-between text-xs font-bold text-ocean-500 mb-4 uppercase tracking-widest">
@@ -154,7 +145,6 @@ export default function SurveiDetailPage({ params }: { params: Promise<{ id: str
                   </div>
                 )}
 
-                {/* 4. TEKS PARAGRAF */}
                 {t === "paragraf" && (
                   <textarea 
                     value={ans || ""} 

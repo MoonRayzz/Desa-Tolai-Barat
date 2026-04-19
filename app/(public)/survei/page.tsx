@@ -4,7 +4,6 @@ import Link from "next/link";
 import { getAktifSurvei, getAllSurvei } from "@/lib/firebase/survei";
 import type { Survei } from "@/types";
 
-// PERBAIKAN CACHE: Memastikan data selalu segar real-time
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
@@ -159,35 +158,6 @@ export default async function SurveiPage() {
               </p>
             </div>
           )}
-
-          <div style={{
-            background: "var(--color-ocean-700)",
-            borderRadius: "20px", padding: "28px 32px",
-            display: "flex", flexWrap: "wrap",
-            alignItems: "center", justifyContent: "space-between",
-            gap: "20px", marginBottom: arsipList.length > 0 ? "48px" : 0,
-          }}>
-            <div>
-              <h3 style={{
-                fontFamily: "var(--font-display)", fontWeight: 600,
-                fontSize: "1.1rem", color: "white", marginBottom: "6px",
-              }}>
-                Punya saran atau aspirasi?
-              </h3>
-              <p style={{ color: "var(--color-ocean-200)", fontSize: "0.875rem" }}>
-                Sampaikan langsung kepada pemerintah desa secara bebas.
-              </p>
-            </div>
-            <Link href="/aspirasi" style={{
-              display: "inline-flex", alignItems: "center", gap: "8px",
-              background: "var(--color-gold-400)", color: "var(--color-gold-900)",
-              fontWeight: 600, fontSize: "0.875rem",
-              padding: "12px 24px", borderRadius: "12px",
-              textDecoration: "none", flexShrink: 0,
-            }}>
-              Kirim Aspirasi
-            </Link>
-          </div>
 
           {arsipList.length > 0 && (
             <div>
