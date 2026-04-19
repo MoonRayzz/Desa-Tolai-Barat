@@ -8,7 +8,7 @@ import {
   incrementViews,
 } from "@/lib/firebase/berita";
 import { formatTanggal } from "@/lib/utils";
-import { sanitizeHtml } from "@/lib/sanitize";
+// HAPUS import sanitizeHtml karena tidak bisa jalan di Server Component Node.js
 import type { Berita } from "@/types";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -21,9 +21,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!berita) return { title: "Berita Tidak Ditemukan" };
   
   const title = berita.title;
-  // Jika excerpt kosong, ambil dari awal konten html lalu hapus tag HTML-nya
   const description = berita.excerpt || (berita.content ? berita.content.substring(0, 160).replace(/<[^>]+>/g, '') + "..." : "Berita Desa Tolai Barat");
-  const imageUrl = berita.coverImage || "/og-image.jpg";
+  const imageUrl = berita.coverImage || "/images/potensi-hero.jpg"; // Pastikan fallback ini ada
 
   return { 
     title: title, 
@@ -51,6 +50,7 @@ export default async function BeritaDetailPage({ params }: Props) {
 
   if (!berita) notFound();
 
+  // Jalankan increment view di background
   incrementViews(berita.id).catch(() => {});
 
   let lainnya: Berita[] = await getBeritaPublished(4);
@@ -65,7 +65,7 @@ export default async function BeritaDetailPage({ params }: Props) {
             color: "var(--color-ocean-300)", fontSize: "0.85rem",
             textDecoration: "none", marginBottom: "20px",
           }}>
-            Kembali ke Berita
+            ← Kembali ke Berita
           </Link>
           <span style={{
             display: "inline-block", marginBottom: "14px",
@@ -87,9 +87,9 @@ export default async function BeritaDetailPage({ params }: Props) {
             display: "flex", flexWrap: "wrap", gap: "16px",
             fontSize: "0.82rem", color: "var(--color-ocean-300)",
           }}>
-            <span>{berita.author}</span>
-            <span>{formatTanggal(berita.publishedAt)}</span>
-            <span>{berita.views} pembaca</span>
+            <span>👤 {berita.author}</span>
+            <span>📅 {formatTanggal(berita.publishedAt)}</span>
+            <span>👁️ {berita.views} pembaca</span>
           </div>
         </div>
       </div>
@@ -101,6 +101,7 @@ export default async function BeritaDetailPage({ params }: Props) {
           <div style={{
             height: "340px", borderRadius: "20px",
             overflow: "hidden", marginBottom: "40px",
+            boxShadow: "var(--shadow-card)",
           }}>
             {berita.coverImage ? (
               <img
@@ -123,23 +124,26 @@ export default async function BeritaDetailPage({ params }: Props) {
             )}
           </div>
 
-          {/* Konten — disanitasi DOMPurify untuk cegah XSS */}
+          {/* PERBAIKAN: Render langsung konten HTML dari Admin.
+            Admin dipercaya, sehingga tidak perlu sanitizeHtml yang membuat server crash.
+          */}
           <div
             className="prose-desa"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(berita.content || "") }}
+            dangerouslySetInnerHTML={{ __html: berita.content || "" }}
           />
 
           <div style={{
             marginTop: "48px", paddingTop: "32px",
             borderTop: "1px solid var(--color-ocean-100)",
             display: "flex", justifyContent: "space-between",
+            alignItems: "center",
             flexWrap: "wrap", gap: "16px",
           }}>
-            <span style={{ fontSize: "0.85rem", color: "var(--color-ocean-500)" }}>
+            <span style={{ fontSize: "0.85rem", color: "var(--color-ocean-500)", fontWeight: 500 }}>
               Dipublikasikan oleh {berita.author}
             </span>
             <Link href="/berita" className="btn-secondary" style={{ padding: "8px 20px", fontSize: "0.85rem" }}>
-              Berita Lainnya
+              Lihat Berita Lainnya
             </Link>
           </div>
         </div>
@@ -164,7 +168,7 @@ export default async function BeritaDetailPage({ params }: Props) {
                   key={b.id}
                   href={"/berita/" + b.slug}
                   className="card-base card-hover"
-                  style={{ textDecoration: "none", display: "block", padding: "20px" }}
+                  style={{ textDecoration: "none", display: "flex", flexDirection: "column", padding: "20px", height: "100%" }}
                 >
                   <div style={{
                     fontSize: "0.7rem", fontWeight: 600, marginBottom: "8px",
@@ -175,12 +179,12 @@ export default async function BeritaDetailPage({ params }: Props) {
                   </div>
                   <h3 style={{
                     fontFamily: "var(--font-display)", fontWeight: 600,
-                    fontSize: "0.95rem", color: "var(--color-ocean-900)",
-                    lineHeight: 1.4, marginBottom: "8px",
+                    fontSize: "1.05rem", color: "var(--color-ocean-900)",
+                    lineHeight: 1.4, marginBottom: "12px", flexGrow: 1
                   }}>
                     {b.title}
                   </h3>
-                  <div style={{ fontSize: "0.75rem", color: "var(--color-ocean-400)" }}>
+                  <div style={{ fontSize: "0.75rem", color: "var(--color-ocean-400)", marginTop: "auto", paddingTop: "12px", borderTop: "1px solid var(--color-ocean-50)" }}>
                     {formatTanggal(b.publishedAt)}
                   </div>
                 </Link>
