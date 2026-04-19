@@ -4,7 +4,8 @@ import Link from "next/link";
 import { getAktifSurvei, getAllSurvei } from "@/lib/firebase/survei";
 import type { Survei } from "@/types";
 
-export const revalidate = 30;
+// PERBAIKAN CACHE: Memastikan data selalu segar real-time
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Survei Warga",

@@ -14,7 +14,12 @@ export function generateId(): string {
 }
 
 function getTodayStr(): string {
-  return new Date().toISOString().split("T")[0];
+  // Pastikan mengambil tanggal lokal sesuai zona waktu HP/Komputer
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 // ─── READ ────────────────────────────────────────────────────────────────────
@@ -32,10 +37,10 @@ export async function getAllSurvei(): Promise<Survei[]> {
 export async function getAktifSurvei(): Promise<Survei[]> {
   try {
     const today = getTodayStr();
-    const q     = query(
+    // PERBAIKAN: Hapus orderBy dari query agar tidak kena limitasi Composite Index Firebase
+    const q = query(
       collection(db, COL),
-      where("aktif", "==", true),
-      orderBy("startDate", "desc")
+      where("aktif", "==", true)
     );
     const snap = await getDocs(q);
     return snap.docs
@@ -44,8 +49,11 @@ export async function getAktifSurvei(): Promise<Survei[]> {
         if (s.startDate > today) return false;
         if (s.endDate && s.endDate < today) return false;
         return true;
-      });
-  } catch {
+      })
+      // Lakukan pengurutan secara manual di JavaScript
+      .sort((a, b) => (b.startDate > a.startDate ? 1 : -1));
+  } catch (error) {
+    console.error("Error ambil survei aktif:", error);
     return [];
   }
 }
@@ -123,11 +131,10 @@ export async function getHasilSurvei(surveiId: string): Promise<HasilPertanyaan[
   if (!survei) return [];
 
   return survei.pertanyaan.map((p) => {
-    const tipe = p.tipe || "pilihan_ganda"; // Backward compatibility untuk survei lama
+    const tipe = p.tipe || "pilihan_ganda"; 
     const countMap: Record<string, number> = {};
     const jawabanTeks: string[] = [];
 
-    // Inisialisasi opsi untuk bar chart agar opsi yang tidak dipilih tetap tampil 0
     if (tipe === "pilihan_ganda" || tipe === "kotak_centang") {
       p.opsi.forEach((o) => { countMap[o] = 0; });
     } else if (tipe === "skala") {
@@ -135,14 +142,12 @@ export async function getHasilSurvei(surveiId: string): Promise<HasilPertanyaan[
       for (let i = 1; i <= max; i++) { countMap[i.toString()] = 0; }
     }
 
-    // Hitung jawaban dari seluruh responden
     jawabanList.forEach((j) => {
       const jawabanUser = j.jawaban[p.id];
       if (jawabanUser !== undefined && jawabanUser !== null && jawabanUser !== "") {
         if (tipe === "paragraf") {
           jawabanTeks.push(jawabanUser.toString());
         } else if (tipe === "kotak_centang" && Array.isArray(jawabanUser)) {
-          // Karena checkbox bisa lebih dari 1 pilihan
           jawabanUser.forEach(val => { countMap[val] = (countMap[val] || 0) + 1; });
         } else {
           countMap[jawabanUser.toString()] = (countMap[jawabanUser.toString()] || 0) + 1;
@@ -150,7 +155,6 @@ export async function getHasilSurvei(surveiId: string): Promise<HasilPertanyaan[
       }
     });
 
-    // Kalkulasi persentase dan total
     const totalJawaban = tipe === "paragraf" 
       ? jawabanTeks.length 
       : Object.values(countMap).reduce((a, b) => a + b, 0);
@@ -170,7 +174,7 @@ export async function getHasilSurvei(surveiId: string): Promise<HasilPertanyaan[
   });
 }
 
-// ─── ANTI-SPAM (localStorage helper — dipakai di client component) ─────────────
+// ─── ANTI-SPAM (localStorage helper) ─────────────
 
 export const SURVEI_STORAGE_KEY = "tolai_sudah_isi_survei";
 
