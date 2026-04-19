@@ -3,6 +3,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { getAktifPengumuman } from "@/lib/firebase/pengumuman";
 import type { Pengumuman } from "@/types";
 
@@ -13,6 +14,7 @@ const STYLE: Record<string, { bg: string; text: string; icon: string }> = {
 };
 
 export default function PengumumanBanner() {
+  const pathname                  = usePathname();
   const [items, setItems]         = useState<Pengumuman[]>([]);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [loaded, setLoaded]       = useState(false);
@@ -45,6 +47,8 @@ export default function PengumumanBanner() {
 
   const visible = items
     .filter((i) => !dismissed.has(i.id))
+    // Opsional UX: Sembunyikan banner ini secara otomatis jika user sedang berada di halaman yang dituju banner
+    .filter((i) => !i.link || i.link !== pathname) 
     .slice(0, 3); // Tampilkan maksimal 3 agar layar tidak penuh
 
   if (!loaded || visible.length === 0) return null;
