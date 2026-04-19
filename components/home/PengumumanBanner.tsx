@@ -17,6 +17,7 @@ export default function PengumumanBanner() {
   const pathname                  = usePathname();
   const [items, setItems]         = useState<Pengumuman[]>([]);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [filledSurveys, setFilledSurveys] = useState<string[]>([]);
   const [loaded, setLoaded]       = useState(false);
 
   useEffect(() => {
@@ -25,6 +26,13 @@ export default function PengumumanBanner() {
       if (raw) {
         const parsed = JSON.parse(raw) as string[];
         setDismissed(new Set(parsed));
+      }
+    } catch {}
+
+    try {
+      const rawSurvei = localStorage.getItem("tolai_sudah_isi_survei");
+      if (rawSurvei) {
+        setFilledSurveys(JSON.parse(rawSurvei) as string[]);
       }
     } catch {}
 
@@ -49,6 +57,14 @@ export default function PengumumanBanner() {
     .filter((i) => !dismissed.has(i.id))
     // Opsional UX: Sembunyikan banner ini secara otomatis jika user sedang berada di halaman yang dituju banner
     .filter((i) => !i.link || i.link !== pathname) 
+    // Sembunyikan banner otomatis jika user sudah mengisi survei tsb
+    .filter((i) => {
+      if (i.link && i.link.startsWith("/survei/")) {
+        const sId = i.link.replace("/survei/", "");
+        if (filledSurveys.includes(sId)) return false;
+      }
+      return true;
+    })
     .slice(0, 3); // Tampilkan maksimal 3 agar layar tidak penuh
 
   if (!loaded || visible.length === 0) return null;
