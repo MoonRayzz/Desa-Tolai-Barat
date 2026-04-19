@@ -1,9 +1,9 @@
-// File: app/admin/survei/tambah/page.tsx
+// File: app/admin/survei/[id]/edit/page.tsx
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent, use } from "react";
 import { useRouter } from "next/navigation";
-import { createSurvei, generateId } from "@/lib/firebase/survei";
+import { getSurveiById, updateSurvei, generateId } from "@/lib/firebase/survei";
 import { createPengumuman } from "@/lib/firebase/pengumuman";
 import type { PertanyaanSurvei, TipePertanyaan, PengumumanPriority } from "@/types";
 
@@ -13,14 +13,36 @@ function buatPertanyaanBaru(): PertanyaanSurvei {
   return { id: generateId(), teks: "", tipe: "pilihan_ganda", opsi: ["Opsi 1", "Opsi 2"], skalaMax: 5 };
 }
 
-export default function TambahSurveiPage() {
+export default function EditSurveiPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id }  = use(params);
   const router  = useRouter();
-  const today   = new Date().toISOString().split("T")[0];
+  
+  const [loadingInitial, setLoadingInitial] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [form, setForm]     = useState({ judul: "", deskripsi: "", aktif: true, startDate: today, endDate: "" });
-  const [pertanyaan, setPertanyaan] = useState<PertanyaanSurvei[]>([buatPertanyaanBaru()]);
+  
+  const [form, setForm]     = useState({ judul: "", deskripsi: "", aktif: true, startDate: "", endDate: "" });
+  const [pertanyaan, setPertanyaan] = useState<PertanyaanSurvei[]>([]);
   const [buatBanner, setBuatBanner] = useState(false);
   const [bannerPriority, setBannerPriority] = useState<PengumumanPriority>("penting");
+
+  useEffect(() => {
+    getSurveiById(id).then((data) => {
+      if (!data) {
+        alert("Survei tidak ditemukan");
+        router.replace("/admin/survei");
+        return;
+      }
+      setForm({
+        judul: data.judul,
+        deskripsi: data.deskripsi,
+        aktif: data.aktif,
+        startDate: data.startDate,
+        endDate: data.endDate || "",
+      });
+      setPertanyaan(data.pertanyaan || [buatPertanyaanBaru()]);
+      setLoadingInitial(false);
+    });
+  }, [id, router]);
 
   function setF(key: string, value: string | boolean) { setForm((prev) => ({ ...prev, [key]: value })); }
   function addPertanyaan() { setPertanyaan((prev) => [...prev, buatPertanyaanBaru()]); }
@@ -43,31 +65,33 @@ export default function TambahSurveiPage() {
     }
     setSaving(true);
     try {
-      const newId = await createSurvei({ judul: form.judul.trim(), deskripsi: form.deskripsi.trim(), aktif: form.aktif, startDate: form.startDate, endDate: form.endDate.trim() || null, pertanyaan });
+      await updateSurvei(id, { judul: form.judul.trim(), deskripsi: form.deskripsi.trim(), aktif: form.aktif, startDate: form.startDate, endDate: form.endDate.trim() || null, pertanyaan });
       
       if (buatBanner) {
         await createPengumuman({
           title: "Survei: " + form.judul.trim(),
-          content: form.deskripsi.trim() || "Silakan berpartisipasi mengisi survei terbaru ini.",
+          content: form.deskripsi.trim() || "Silakan berpartisipasi mengisi survei ini.",
           type: "pengumuman",
           priority: bannerPriority,
-          startDate: form.startDate,
+          startDate: form.startDate || new Date().toISOString().split("T")[0],
           endDate: form.endDate.trim() || null,
           aktif: true,
-          link: "/survei/" + newId,
+          link: "/survei/" + id,
           linkText: "Isi Survei",
         });
       }
 
       router.push("/admin/survei");
-    } catch { alert("Gagal menyimpan survei."); setSaving(false); }
+    } catch { alert("Gagal mengupdate survei."); setSaving(false); }
   }
+
+  if (loadingInitial) return <div className="p-8 text-ocean-500">Memuat data survei...</div>;
 
   return (
     <div className="p-4 md:p-8">
       <div className="flex items-center gap-3 mb-6">
         <button onClick={() => router.back()} className="text-ocean-500 hover:text-ocean-700 font-bold">← Kembali</button>
-        <h1 className="font-display font-bold text-2xl text-ocean-900">Buat Survei Dinamis</h1>
+        <h1 className="font-display font-bold text-2xl text-ocean-900">Edit Survei Dinamis</h1>
       </div>
 
       {/* DUA KOLOM: Kiri Form, Kanan Preview */}
@@ -88,11 +112,11 @@ export default function TambahSurveiPage() {
               <div className="mt-4 pt-4 border-t border-ocean-50">
                 <div className="flex items-center gap-3 mb-3">
                   <input type="checkbox" id="buatBanner" checked={buatBanner} onChange={(e) => setBuatBanner(e.target.checked)} className="w-5 h-5 rounded border-ocean-300 text-ocean-600 focus:ring-ocean-500 cursor-pointer" />
-                  <label htmlFor="buatBanner" className="font-bold text-ocean-800 cursor-pointer">Tampilkan Banner Pengumuman</label>
+                  <label htmlFor="buatBanner" className="font-bold text-ocean-800 cursor-pointer">Tampilkan / Update Banner Pengumuman Baru</label>
                 </div>
                 {buatBanner && (
                   <div className="pl-8 bg-ocean-50 p-4 rounded-xl space-y-3 border border-ocean-100">
-                    <p className="text-xs text-ocean-600">Banner akan otomatis muncul di bagian atas halaman public. Berguna untuk mempromosikan survei baru ini.</p>
+                    <p className="text-xs text-ocean-600">Jika dicentang, sistem akan mengirimkan banner pengumuman untuk survei ini.</p>
                     <div>
                       <label style={ls}>Prioritas Banner</label>
                       <select value={bannerPriority} onChange={(e) => setBannerPriority(e.target.value as PengumumanPriority)} className="input-base py-2">
@@ -174,7 +198,7 @@ export default function TambahSurveiPage() {
           </button>
 
           <button type="submit" disabled={saving} className="btn-primary w-full py-4 text-lg shadow-lg">
-            {saving ? "Menyimpan..." : "💾 Simpan & Publikasikan Survei"}
+            {saving ? "Menyimpan..." : "💾 Update & Simpan Perubahan"}
           </button>
         </form>
 

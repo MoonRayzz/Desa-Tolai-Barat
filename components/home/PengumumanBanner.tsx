@@ -143,6 +143,38 @@ export default function PengumumanBanner() {
               </span>
             )}
 
+            {/* Tombol Link (Opsional) */}
+            {item.link && (
+              <a
+                href={item.link}
+                style={{
+                  display: "inline-block",
+                  padding: "8px 16px",
+                  fontSize: "0.9rem",
+                  fontWeight: 700,
+                  color: s.bg,               // Terbalik: teks warna background
+                  backgroundColor: s.text,   // Terbalik: background warna teks
+                  borderRadius: "8px",
+                  textDecoration: "none",
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                  transition: "transform 0.2s, opacity 0.2s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+                onClick={(e) => {
+                  // Berikan sedikit efek saat diklik
+                  e.currentTarget.style.transform = "scale(0.95)";
+                  setTimeout(() => {
+                    if (e.target) (e.target as HTMLElement).style.transform = "scale(1)";
+                  }, 100);
+                }}
+              >
+                {item.linkText || "Lihat Detail"}
+              </a>
+            )}
+
             {/* Tombol Tutup (X) diperbesar */}
             <button
               onClick={() => dismiss(item.id)}

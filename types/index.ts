@@ -83,6 +83,8 @@ export interface Pengumuman {
   startDate: string;        // "YYYY-MM-DD"
   endDate:   string | null; // null = tidak kadaluarsa
   aktif:     boolean;
+  link?:     string;
+  linkText?: string;
   createdAt: string;
 }
 

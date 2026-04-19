@@ -23,6 +23,32 @@ export default function AdminPengumumanPage() {
   const [list, setList]       = useState<Pengumuman[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState<Filter>("aktif");
+  const [broadcasting, setBroadcasting] = useState<string | null>(null);
+
+  async function handleBroadcast(p: Pengumuman) {
+    if (!confirm(`Kirim Push Notification ke semua warga berlangganan untuk "${p.title}"?`)) return;
+    setBroadcasting(p.id);
+    try {
+      const res = await fetch("/api/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "Informasi Baru: " + p.title,
+          content: p.content.slice(0, 150) + (p.content.length > 150 ? "..." : ""),
+          link: p.link || "/",
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`Berhasil mengirim ke ${data.successCount} perangkat.`);
+      } else {
+        alert("Gagal mengirim: " + data.error);
+      }
+    } catch (e) {
+      alert("Terjadi kesalahan sistem saat menghubungi backend.");
+    }
+    setBroadcasting(null);
+  }
 
   async function load() {
     const data = await getAllPengumuman();
@@ -234,6 +260,20 @@ export default function AdminPengumumanPage() {
 
                 {/* Actions */}
                 <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
+                  <button
+                    onClick={() => handleBroadcast(p)}
+                    disabled={broadcasting === p.id}
+                    style={{
+                      padding: "6px 14px", borderRadius: "8px",
+                      background: "var(--color-gold-100)",
+                      color: "var(--color-gold-700)",
+                      fontSize: "0.78rem", fontWeight: 700,
+                      border: "none", cursor: broadcasting === p.id ? "wait" : "pointer",
+                      opacity: broadcasting === p.id ? 0.6 : 1,
+                    }}
+                  >
+                    {broadcasting === p.id ? "Mengirim..." : "📢 Broadcast"}
+                  </button>
                   <Link
                     href={"/admin/pengumuman/" + p.id + "/edit"}
                     style={{

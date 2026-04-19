@@ -193,6 +193,18 @@ export default function AdminSurveiPage() {
                     >
                       Lihat Hasil
                     </Link>
+                    <Link
+                      href={"/admin/survei/" + s.id + "/edit"}
+                      style={{
+                        padding: "7px 14px", borderRadius: "8px",
+                        background: "var(--color-ocean-100)",
+                        color: "var(--color-ocean-700)",
+                        fontSize: "0.78rem", fontWeight: 500,
+                        textDecoration: "none",
+                      }}
+                    >
+                      Edit
+                    </Link>
                     <button
                       onClick={() => handleDelete(s.id, s.judul)}
                       style={{
