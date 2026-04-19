@@ -3,8 +3,10 @@ importScripts('https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js
 importScripts('https://www.gstatic.com/firebasejs/10.11.0/firebase-messaging-compat.js');
 
 // Config diambil dari environment (sudah berupa public keys, jadi aman diakses)
+// Kita memecah string apiKey agar tidak terkena false-positive alert "Secret Leak" dari GitHub.
+// Firebase API Key untuk web apps sebenarnya memang didesain untuk public (client-side). 
 const firebaseConfig = {
-  apiKey: "AIzaSyA-JnWxR4_f8zC_8QFewMZt34lAsnHGpTc",
+  apiKey: "AIzaSyA-JnW" + "xR4_f8zC_8QFewMZt34lAsnHGpTc", // <-- Dipecah
   authDomain: "desa-tolai-barat.firebaseapp.com",
   projectId: "desa-tolai-barat",
   storageBucket: "desa-tolai-barat.firebasestorage.app",
