@@ -2,10 +2,12 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { getDesaSettings } from "@/lib/firebase/settings";
+import { cloudinaryResize } from "@/lib/utils";
 
 const NAV = [
   { href: "/admin/dashboard",  icon: "▦",  label: "Dashboard"       },
@@ -57,9 +59,14 @@ function AdminShell({ children }: { children: React.ReactNode }) {
         <div style={{ padding: isCollapsed ? "20px 0" : "20px 16px", borderBottom: "1px solid rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: isCollapsed ? "center" : "space-between", flexDirection: isCollapsed ? "column" : "row", gap: isCollapsed ? "16px" : "0" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             
-            {/* --- LOGO DIPERBAIKI --- */}
             {logoUrl ? (
-              <img src={logoUrl} alt="Logo" style={{ width: "36px", height: "36px", objectFit: "contain", flexShrink: 0 }} />
+              <Image
+                src={cloudinaryResize(logoUrl, 72)}
+                alt="Logo Desa Tolai Barat"
+                width={36}
+                height={36}
+                style={{ objectFit: "contain", flexShrink: 0 }}
+              />
             ) : (
               <div style={{ 
                 width: 34, height: 34, borderRadius: "8px", 

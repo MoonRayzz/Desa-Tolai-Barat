@@ -2,10 +2,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { getDesaSettings } from "@/lib/firebase/settings";
+import { cloudinaryResize } from "@/lib/utils";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -50,9 +52,19 @@ export default function LoginPage() {
               borderRadius: "20px", overflow: "hidden"
             }}>
               {logoUrl ? (
-                <img src={logoUrl} alt="Logo Desa" className="w-full h-full object-contain" />
+                <Image
+                  src={cloudinaryResize(logoUrl, 160)}
+                  alt="Logo Desa Tolai Barat"
+                  width={80}
+                  height={80}
+                  style={{ objectFit: "contain" }}
+                  priority
+                />
               ) : (
-                <span className="text-3xl">🌊</span>
+                <svg width="36" height="36" viewBox="0 0 20 20" fill="none">
+                  <path d="M10 3C10 3 5 7 5 11.5C5 14.3 7.2 16.5 10 16.5C12.8 16.5 15 14.3 15 11.5C15 7 10 3 10 3Z" fill="white" opacity="0.9" />
+                  <path d="M10 8C10 8 7.5 10 7.5 11.5C7.5 12.9 8.6 14 10 14C11.4 14 12.5 12.9 12.5 11.5C12.5 10 10 8 10 8Z" fill="#F5C842" />
+                </svg>
               )}
             </div>
           </div>

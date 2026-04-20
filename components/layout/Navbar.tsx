@@ -6,40 +6,59 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { getDesaSettings } from "@/lib/firebase/settings";
+import { cloudinaryResize } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { label: "Beranda",      href: "/"         },
-  { label: "Profil",       href: "/profil"   },
-  { label: "Berita",       href: "/berita"   },
-  { label: "Wisata",       href: "/wisata"   },
-  { label: "Potensi Desa", href: "/potensi"  },
-  { label: "Galeri",       href: "/galeri"   },
-  { label: "Survei",       href: "/survei"   },
-  { label: "Layanan",      href: "/layanan"  },
+  { label: "Beranda",      href: "/"        },
+  { label: "Profil",       href: "/profil"  },
+  { label: "Berita",       href: "/berita"  },
+  { label: "Wisata",       href: "/wisata"  },
+  { label: "Potensi Desa", href: "/potensi" },
+  { label: "BUMDes",       href: "/bumdes"  },
+  { label: "Galeri",       href: "/galeri"  },
+  { label: "Survei",       href: "/survei"  },
+  { label: "Layanan",      href: "/layanan" },
 ];
+
+// Module-level cache — tidak fetch ulang setiap mount
+let _cachedLogo: string | null = null;
 
 export default function Navbar() {
   const pathname                = usePathname();
   const [open, setOpen]         = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  
-  const [logoUrl, setLogoUrl]   = useState("");
+  const [logoUrl, setLogoUrl]   = useState(_cachedLogo ?? "");
 
+  // Scroll listener
   useEffect(() => {
-    const fn = () => setScrolled(prev => { const next = window.scrollY > 20; return prev === next ? prev : next; });
+    const fn = () =>
+      setScrolled(prev => {
+        const next = window.scrollY > 20;
+        return prev === next ? prev : next;
+      });
     window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  // Tutup menu saat navigasi
   useEffect(() => { setOpen(false); }, [pathname]);
 
+  // Lock body scroll saat mobile menu terbuka
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
+  // Fetch logo dengan cache
   useEffect(() => {
-    getDesaSettings().then(s => setLogoUrl(s.logoDesa || ""));
+    if (_cachedLogo !== null) {
+      setLogoUrl(_cachedLogo);
+      return;
+    }
+    getDesaSettings().then(s => {
+      _cachedLogo = s.logoDesa || "";
+      setLogoUrl(_cachedLogo);
+    });
   }, []);
 
   const isActive = (href: string) =>
@@ -47,7 +66,6 @@ export default function Navbar() {
 
   const clrLink     = scrolled ? "#0D1F2D" : "white";
   const clrMuted    = scrolled ? "rgba(13,31,45,0.65)" : "rgba(255,255,255,0.75)";
-  const clrHoverBg  = scrolled ? "rgba(11,94,107,0.07)" : "rgba(255,255,255,0.12)";
   const clrActiveBg = scrolled ? "rgba(11,94,107,0.1)"  : "rgba(255,255,255,0.18)";
 
   return (
@@ -66,14 +84,20 @@ export default function Navbar() {
             justifyContent: "space-between", height: "68px",
           }}>
 
+            {/* ── Logo & Nama Desa ── */}
             <Link href="/" style={{
               display: "flex", alignItems: "center",
               gap: "12px", textDecoration: "none",
             }}>
-              
-              {/* --- LOGO DIPERBAIKI: Tanpa background putih, ukuran diperbesar --- */}
               {logoUrl ? (
-                <img src={logoUrl} alt="Logo Desa" style={{ width: "44px", height: "44px", objectFit: "contain", flexShrink: 0 }} />
+                <Image
+                  src={cloudinaryResize(logoUrl, 88)}
+                  alt="Logo Desa Tolai Barat"
+                  width={44}
+                  height={44}
+                  style={{ objectFit: "contain", flexShrink: 0 }}
+                  priority
+                />
               ) : (
                 <div style={{
                   width: 38, height: 38, borderRadius: "10px",
@@ -104,35 +128,39 @@ export default function Navbar() {
               </div>
             </Link>
 
+            {/* ── Nav Desktop ── */}
             <nav style={{ display: "none", alignItems: "center", gap: "2px" }} className="lg-flex">
               {NAV_LINKS.map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}
+                  className={`navbar-link${isActive(l.href) ? " navbar-link--active" : ""}`}
                   style={{
-                    padding: "7px 10px", borderRadius: "10px",
-                    fontSize: "0.82rem", fontWeight: 500,
                     color: isActive(l.href) ? clrLink : clrMuted,
                     background: isActive(l.href) ? clrActiveBg : "transparent",
-                    transition: "all 0.2s", textDecoration: "none",
-                  }}
-                  onMouseEnter={(e) => { if (!isActive(l.href)) (e.currentTarget as HTMLElement).style.background = clrHoverBg; }}
-                  onMouseLeave={(e) => { if (!isActive(l.href)) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                    "--navbar-hover-bg": scrolled
+                      ? "rgba(11,94,107,0.07)"
+                      : "rgba(255,255,255,0.12)",
+                  } as React.CSSProperties}
                 >
                   {l.label}
                 </Link>
               ))}
             </nav>
 
+            {/* ── CTA Desktop ── */}
             <div style={{ display: "none" }} className="lg-flex">
               <Link href="/layanan" className="btn-primary" style={{ padding: "9px 20px", fontSize: "0.875rem" }}>
                 Portal Warga
               </Link>
             </div>
 
+            {/* ── Hamburger ── */}
             <button
-              onClick={() => setOpen(!open)}
-              aria-label="Menu"
+              onClick={() => setOpen(prev => !prev)}
+              aria-label={open ? "Tutup menu" : "Buka menu"}
+              aria-expanded={open}
+              aria-controls="mobile-menu"
               className="lg-hide"
               style={{
                 padding: "8px", borderRadius: "10px", border: "none",
@@ -157,8 +185,10 @@ export default function Navbar() {
         </div>
       </header>
 
+      {/* ── Mobile Drawer ── */}
       {open && (
         <>
+          {/* Overlay */}
           <div
             onClick={() => setOpen(false)}
             style={{
@@ -166,53 +196,83 @@ export default function Navbar() {
               background: "rgba(13,31,45,0.5)", backdropFilter: "blur(4px)",
             }}
           />
-          <div style={{
-            position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 50,
-            width: "280px", background: "white", boxShadow: "var(--shadow-card-lg)",
-            display: "flex", flexDirection: "column", animation: "fadeIn 0.2s ease-out",
-          }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--color-ocean-100)" }}>
-              <span style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "1rem", color: "var(--color-ocean-900)" }}>Menu</span>
-              <button onClick={() => setOpen(false)} style={{ border: "none", background: "none", cursor: "pointer", color: "var(--color-ocean-600)", padding: "4px" }}>
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 4L14 14M14 4L4 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+
+          {/* Drawer */}
+          <div
+            id="mobile-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu navigasi"
+            style={{
+              position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 50,
+              width: "280px", background: "white", boxShadow: "var(--shadow-card-lg)",
+              display: "flex", flexDirection: "column",
+              animation: "slideInRight 0.25s ease-out",
+            }}
+          >
+            {/* Header drawer */}
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "16px 20px", borderBottom: "1px solid var(--color-ocean-100)",
+            }}>
+              <span style={{
+                fontFamily: "var(--font-display)", fontWeight: 600,
+                fontSize: "1rem", color: "var(--color-ocean-900)",
+              }}>
+                Menu
+              </span>
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="Tutup menu"
+                style={{ border: "none", background: "none", cursor: "pointer", color: "var(--color-ocean-600)", padding: "4px" }}
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M4 4L14 14M14 4L4 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
               </button>
             </div>
 
+            {/* Nav links */}
             <nav style={{ flex: 1, overflowY: "auto", padding: "12px" }}>
               {NAV_LINKS.map((l) => (
                 <Link
-                  key={l.href} href={l.href}
+                  key={l.href}
+                  href={l.href}
                   style={{
                     display: "flex", alignItems: "center", justifyContent: "space-between",
-                    padding: "12px 16px", borderRadius: "12px", marginBottom: "4px", fontSize: "0.9rem", fontWeight: 500,
+                    padding: "12px 16px", borderRadius: "12px", marginBottom: "4px",
+                    fontSize: "0.9rem", fontWeight: 500,
                     color: isActive(l.href) ? "var(--color-ocean-700)" : "var(--color-ocean-800)",
                     background: isActive(l.href) ? "var(--color-ocean-100)" : "transparent",
                     textDecoration: "none", transition: "background 0.15s",
                   }}
                 >
                   {l.label}
-                  {isActive(l.href) && (<span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--color-ocean-700)", flexShrink: 0 }} />)}
+                  {isActive(l.href) && (
+                    <span style={{
+                      width: 6, height: 6, borderRadius: "50%",
+                      background: "var(--color-ocean-700)", flexShrink: 0,
+                    }} />
+                  )}
                 </Link>
               ))}
             </nav>
 
+            {/* Footer drawer */}
             <div style={{ padding: "16px 20px", borderTop: "1px solid var(--color-ocean-100)" }}>
-              <Link href="/layanan" className="btn-primary" style={{ width: "100%", justifyContent: "center", padding: "12px" }}>Portal Warga</Link>
-              <p style={{ textAlign: "center", fontSize: "0.7rem", color: "var(--color-ocean-400)", marginTop: "10px" }}>Desa Tolai Barat · Kode Pos 94473</p>
+              <Link href="/layanan" className="btn-primary" style={{ width: "100%", justifyContent: "center", padding: "12px" }}>
+                Portal Warga
+              </Link>
+              <p style={{
+                textAlign: "center", fontSize: "0.7rem",
+                color: "var(--color-ocean-400)", marginTop: "10px",
+              }}>
+                Desa Tolai Barat · Kode Pos 94473
+              </p>
             </div>
           </div>
         </>
       )}
-
-      <style>{`
-        @media (min-width: 1024px) {
-          .lg-flex { display: flex !important; }
-          .lg-hide { display: none !important; }
-        }
-        @media (max-width: 1023px) {
-          .lg-flex { display: none !important; }
-        }
-      `}</style>
     </>
   );
 }

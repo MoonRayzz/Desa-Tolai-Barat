@@ -395,3 +395,42 @@
 .group:hover .group-hover-flip {
   transform: rotateY(180deg);
 }
+
+/* ─── Navbar ─────────────────────────────────────────────── */
+@media (min-width: 1024px) {
+  .lg-flex { display: flex !important; }
+  .lg-hide { display: none !important; }
+}
+@media (max-width: 1023px) {
+  .lg-flex { display: none !important; }
+}
+
+/* Nav link desktop — hover via CSS, bukan onMouseEnter */
+.navbar-link {
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+.navbar-link:hover {
+  background: var(--navbar-hover-bg, rgba(11,94,107,0.07)) !important;
+}
+
+/* Animasi slide-in dari kanan untuk mobile drawer */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* ─── Footer ─────────────────────────────────────────────── */
+.footer-link {
+  font-size: 0.875rem;
+  color: var(--color-ocean-300);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-link:hover {
+  color: white;
+}
