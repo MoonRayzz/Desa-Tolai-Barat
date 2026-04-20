@@ -86,6 +86,10 @@ export default async function Footer() {
             </div>
           </div>
 
+          <div>
+            <VisitorCounter />
+          </div>
+
         </div>
       </div>
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}></div>
@@ -93,7 +97,6 @@ export default async function Footer() {
         <div style={{ fontSize: "0.85rem", color: "var(--color-ocean-400)" }}>
           &copy; {new Date().getFullYear()} Desa Tolai Barat. All rights reserved.
         </div>
-        <VisitorCounter />
       </div>
     </footer>
   );
