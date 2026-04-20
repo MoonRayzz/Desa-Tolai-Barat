@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { getDesaSettings } from "@/lib/firebase/settings";
@@ -25,7 +26,7 @@ export default function Navbar() {
   const [logoUrl, setLogoUrl]   = useState("");
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 20);
+    const fn = () => setScrolled(prev => { const next = window.scrollY > 20; return prev === next ? prev : next; });
     window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
   }, []);

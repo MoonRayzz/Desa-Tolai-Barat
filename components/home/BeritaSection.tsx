@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { getBeritaTerbaru } from "@/lib/firebase/berita";
 import { formatTanggal } from "@/lib/utils";
@@ -37,16 +38,17 @@ export default async function BeritaSection() {
             const w = WARNA[b.kategori] ?? WARNA.berita;
             return (
               <Link key={b.id} href={`/berita/${b.slug}`} className="card-base"
-                style={{ textDecoration: "none", display: "block", animation: "fadeUp 0.5s ease-out forwards", animationDelay: `${i * 100}ms`, opacity: 0 }}>
+                style={{ textDecoration: "none", display: "block", animation: "fadeUp 0.5s ease-out forwards", animationDelay: `${Math.min(i * 100, 400)}ms`, opacity: 0 }}>
                 {/* Cover image atau placeholder */}
                 <div style={{
-                  height: "180px", overflow: "hidden",
+                  height: "180px", overflow: "hidden", position: "relative",
                   background: "linear-gradient(135deg, var(--color-ocean-800), var(--color-ocean-600))",
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
                   {b.coverImage && !b.coverImage.includes("placeholder") ? (
-                    <img src={b.coverImage} alt={b.title}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <Image src={b.coverImage} alt={b.title} fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      style={{ objectFit: "cover" }} />
                   ) : (
                     <span style={{ fontSize: "3rem" }}>{EMOJI[b.kategori] ?? "📰"}</span>
                   )}

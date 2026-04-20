@@ -1,8 +1,19 @@
 // File: app/api/notify/route.ts
 import { NextResponse } from 'next/server';
-import { adminDb, adminMessaging } from '@/lib/firebase/admin';
+import { adminDb, adminMessaging, adminAuth } from '@/lib/firebase/admin';
 
 export async function POST(req: Request) {
+  const authHeader = req.headers.get('Authorization');
+  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  try {
+    await adminAuth.verifyIdToken(token);
+  } catch {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const { title, content, link } = body;

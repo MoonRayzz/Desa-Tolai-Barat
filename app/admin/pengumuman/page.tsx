@@ -9,6 +9,7 @@ import {
   isExpired,
   isUpcoming,
 } from "@/lib/firebase/pengumuman";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Pengumuman } from "@/types";
 
 type Filter = "aktif" | "agenda" | "semua" | "arsip";
@@ -20,6 +21,7 @@ const PRIORITY_STYLE: Record<string, { label: string; bg: string; text: string }
 };
 
 export default function AdminPengumumanPage() {
+  const { user }              = useAuth();
   const [list, setList]       = useState<Pengumuman[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter]   = useState<Filter>("aktif");
@@ -29,9 +31,13 @@ export default function AdminPengumumanPage() {
     if (!confirm(`Kirim Push Notification ke semua warga berlangganan untuk "${p.title}"?`)) return;
     setBroadcasting(p.id);
     try {
+      const token = await user?.getIdToken();
       const res = await fetch("/api/notify", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           title: "Informasi Baru: " + p.title,
           content: p.content.slice(0, 150) + (p.content.length > 150 ? "..." : ""),

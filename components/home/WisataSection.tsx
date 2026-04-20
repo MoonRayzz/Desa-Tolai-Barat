@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getWisataFeatured } from "@/lib/firebase/wisata";
 import type { Wisata } from "@/types";
 
@@ -54,7 +55,7 @@ export default async function WisataSection() {
                 style={{ borderRadius: "20px", overflow: "hidden", background: "white", textDecoration: "none", display: "block", animation: "fadeUp 0.5s ease-out forwards", animationDelay: `${i * 100}ms`, opacity: 0 }}>
                 <div style={{ height: "200px", position: "relative", overflow: "hidden" }}>
                   {w.image && !w.image.includes("placeholder") ? (
-                    <img src={w.image} alt={w.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <Image src={w.image} alt={w.name} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" style={{ objectFit: "cover" }} />
                   ) : (
                     <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, var(--color-ocean-800), var(--color-ocean-600))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "3rem" }}>
                       {EMOJI[w.kategori] ?? "🏝️"}

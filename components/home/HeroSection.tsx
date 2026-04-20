@@ -25,6 +25,7 @@ export default function HeroSection() {
         loop
         muted
         playsInline
+        preload="metadata"
         style={{
           position: "absolute",
           inset: 0,

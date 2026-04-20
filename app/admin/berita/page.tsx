@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getAllBeritaAdmin, deleteBerita } from "@/lib/firebase/berita";
+import { useAuth } from "@/contexts/AuthContext";
 import { formatTanggal } from "@/lib/utils";
 import type { Berita } from "@/types";
 
@@ -19,6 +20,7 @@ interface CrawlResult {
 
 export default function AdminBeritaPage() {
   const router                  = useRouter();
+  const { user }                = useAuth();
   const [list, setList]         = useState<Berita[]>([]);
   const [loading, setLoading]   = useState(true);
 
@@ -72,9 +74,13 @@ export default function AdminBeritaPage() {
     setCrawling(true);
 
     try {
+      const token = await user?.getIdToken();
       const res  = await fetch("/api/crawl", {
         method:  "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+        },
         body:    JSON.stringify({ url: crawlUrl }),
       });
       const data = await res.json();
