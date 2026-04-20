@@ -1,6 +1,7 @@
 // File: components/layout/Footer.tsx
 import Link from "next/link";
 import { getDesaSettings } from "@/lib/firebase/settings";
+import VisitorCounter from "@/components/shared/VisitorCounter";
 
 const COL_NAVIGASI = [
   { label: "Profil Desa",    href: "/profil" },
@@ -88,6 +89,12 @@ export default async function Footer() {
         </div>
       </div>
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}></div>
+      <div className="container-desa" style={{ paddingTop: "24px", paddingBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
+        <div style={{ fontSize: "0.85rem", color: "var(--color-ocean-400)" }}>
+          &copy; {new Date().getFullYear()} Desa Tolai Barat. All rights reserved.
+        </div>
+        <VisitorCounter />
+      </div>
     </footer>
   );
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { logVisit } from "@/lib/firebase/analytics";
+import { logVisitAdmin } from "@/lib/firebase/admin-analytics";
+import { UAParser } from "ua-parser-js";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,12 +12,13 @@ export async function POST(req: NextRequest) {
     const ip = forwarded ? forwarded.split(",")[0].trim() : "unknown";
 
     // Ambil User-Agent untuk deteksi Bot & Crawler (sumber traffic dari California/bot sosial media)
-    const userAgent = req.headers.get("user-agent")?.toLowerCase() || "";
+    const userAgent = req.headers.get("user-agent") || "";
+    const lowerUserAgent = userAgent.toLowerCase();
     const botKeywords = [
       "bot", "crawler", "spider", "whatsapp", "telegram", 
       "vercel", "headless", "lighthouse", "postman"
     ];
-    const isBot = botKeywords.some((keyword) => userAgent.includes(keyword));
+    const isBot = botKeywords.some((keyword) => lowerUserAgent.includes(keyword));
 
     // Lewati IP lokal / development
     const isLocal =
@@ -27,7 +29,6 @@ export async function POST(req: NextRequest) {
       ip.startsWith("10.");
 
     // FOKUS MASALAH: Jika pengunjung adalah Dev (Local) atau Bot, BERHENTI di sini.
-    // Jangan panggil logVisit agar database tetap bersih.
     if (isLocal || isBot) {
       return NextResponse.json(
         { ok: true, message: "Ignored: Localhost or Bot traffic" }, 
@@ -35,7 +36,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // --- Logika di bawah ini hanya dieksekusi untuk pengunjung MANUSIA/ORGANIK ---
+    // Parse User-Agent untuk mendapatkan detail
+    const parser = new UAParser(userAgent);
+    const osData = parser.getOS();
+    const browserData = parser.getBrowser();
+    const deviceData = parser.getDevice();
+
+    const os = osData.name || "Tidak Diketahui";
+    const browser = browserData.name || "Tidak Diketahui";
+    const device = deviceData.type === "mobile" ? "Mobile" : 
+                   deviceData.type === "tablet" ? "Tablet" : 
+                   deviceData.type === "smarttv" ? "Smart TV" : "Desktop";
 
     let city    = "Tidak Diketahui";
     let region  = "Tidak Diketahui";
@@ -59,11 +70,12 @@ export async function POST(req: NextRequest) {
       // Gagal geo → tetap log dengan nilai default
     }
 
-    // Simpan data ke Firebase
-    await logVisit({ page, city, region, country });
+    // Simpan data ke Firebase menggunakan API Admin server-side
+    await logVisitAdmin({ page, city, region, country, os, browser, device });
 
     return NextResponse.json({ ok: true });
-  } catch {
+  } catch (error) {
+    console.error("Tracking error:", error);
     return NextResponse.json({ ok: false }, { status: 500 });
   }
-}
+}

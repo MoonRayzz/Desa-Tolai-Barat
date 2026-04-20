@@ -1,15 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  getTotalVisitors,
-  getTodayCount,
-  getThisMonthCount,
-  getLast7Days,
-  getTopCities,
-  getTopRegions,
-  type DailyStat,
-} from "@/lib/firebase/analytics";
+import { getAnalyticsData, type AnalyticsData, type DailyStat } from "@/lib/firebase/analytics";
 
 interface TopItem { city?: string; region?: string; count: number; }
 
@@ -21,35 +13,43 @@ export default function AnalyticsPage() {
   const [last7, setLast7]       = useState<DailyStat[]>([]);
   const [cities, setCities]     = useState<{ city: string; count: number }[]>([]);
   const [regions, setRegions]   = useState<{ region: string; count: number }[]>([]);
+  const [osData, setOsData]     = useState<{ os: string; count: number }[]>([]);
+  const [browsers, setBrowsers] = useState<{ browser: string; count: number }[]>([]);
+  const [devices, setDevices]   = useState<{ device: string; count: number }[]>([]);
+  const [pages, setPages]       = useState<{ page: string; count: number }[]>([]);
+  const [todayCities, setTodayCities] = useState<{ city: string; count: number }[]>([]);
+  const [monthCities, setMonthCities] = useState<{ city: string; count: number }[]>([]);
 
   useEffect(() => {
     async function load() {
-      const [t, td, tm, l7, ct, rg] = await Promise.all([
-        getTotalVisitors(),
-        getTodayCount(),
-        getThisMonthCount(),
-        getLast7Days(),
-        getTopCities(10),
-        getTopRegions(10),
-      ]);
+      const data = await getAnalyticsData();
 
       // FOKUS MASALAH: Filter data anomali (Localhost & lokasi Bot/Server Vercel)
       const excludeKeywords = ["localhost", "development", "san jose", "santa clara", "california", "madan"];
 
-      const filteredCities = ct.filter(
+      const filteredCities = data.topCities.filter(
         (c) => !excludeKeywords.some((keyword) => (c.city || "").toLowerCase().includes(keyword))
       );
 
-      const filteredRegions = rg.filter(
+      const filteredRegions = data.topRegions.filter(
         (r) => !excludeKeywords.some((keyword) => (r.region || "").toLowerCase().includes(keyword))
       );
 
-      setTotal(t);
-      setToday(td);
-      setMonth(tm);
-      setLast7(l7);
+      setTotal(data.total);
+      setToday(data.today);
+      setMonth(data.thisMonth);
+      setLast7(data.last7);
       setCities(filteredCities);
       setRegions(filteredRegions);
+      setOsData(data.topOS);
+      setBrowsers(data.topBrowsers);
+      setDevices(data.topDevices);
+      setTodayCities(data.todayCities.filter(c => !excludeKeywords.some(k => (c.city || "").toLowerCase().includes(k))).slice(0, 3));
+      setMonthCities(data.thisMonthCities.filter(c => !excludeKeywords.some(k => (c.city || "").toLowerCase().includes(k))).slice(0, 3));
+      
+      // Filter the pages somewhat carefully
+      const filteredPages = data.topPages.filter(p => !p.page.startsWith("/api"));
+      setPages(filteredPages.slice(0, 5));
       setLoading(false);
     }
     load();
@@ -63,9 +63,9 @@ export default function AnalyticsPage() {
   }
 
   const STAT_CARDS = [
-    { label: "Total Pengunjung",    value: total,     emoji: "👥", bg: "var(--color-ocean-100)",  color: "var(--color-ocean-700)"  },
-    { label: "Pengunjung Hari Ini", value: today,     emoji: "📅", bg: "var(--color-gold-100)",   color: "var(--color-gold-700)"   },
-    { label: "Bulan Ini",           value: thisMonth, emoji: "📆", bg: "var(--color-forest-100)", color: "var(--color-forest-700)" },
+    { label: "Total Pengunjung",    value: total,     emoji: "👥", bg: "var(--color-ocean-100)",  color: "var(--color-ocean-700)", list: null  },
+    { label: "Pengunjung Hari Ini", value: today,     emoji: "📅", bg: "var(--color-gold-100)",   color: "var(--color-gold-700)",  list: todayCities   },
+    { label: "Bulan Ini",           value: thisMonth, emoji: "📆", bg: "var(--color-forest-100)", color: "var(--color-forest-700)", list: monthCities },
   ];
 
   return (
@@ -116,6 +116,17 @@ export default function AnalyticsPage() {
                 <div style={{ fontSize: "0.82rem", color: "var(--color-ocean-600)", marginTop: "6px" }}>
                   {c.label}
                 </div>
+                {c.list && c.list.length > 0 && (
+                  <div style={{ marginTop: "16px", paddingTop: "12px", borderTop: "1px dashed var(--color-ocean-100)", display: "flex", flexDirection: "column", gap: "6px" }}>
+                    <div style={{ fontSize: "0.7rem", color: "var(--color-ocean-400)", marginBottom: "2px" }}>Dari mana?</div>
+                    {c.list.map(l => (
+                      <div key={l.city} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem" }}>
+                        <span style={{ color: "var(--color-ocean-800)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginRight: "8px" }}>{l.city}</span>
+                        <span style={{ fontWeight: 600, color: c.color }}>{l.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -326,6 +337,158 @@ export default function AnalyticsPage() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Detailed Info: Devices, OS, Browsers */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "20px",
+            marginBottom: "24px",
+          }}>
+
+            {/* Device */}
+            <div style={{
+              background: "white", borderRadius: "16px", padding: "24px",
+              boxShadow: "var(--shadow-card)",
+            }}>
+              <h2 style={{
+                fontSize: "1rem", fontWeight: 600,
+                color: "var(--color-ocean-900)", marginBottom: "16px",
+              }}>
+                📱 Tipe Perangkat
+              </h2>
+              {devices.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "24px", color: "var(--color-ocean-400)", fontSize: "0.875rem" }}>Belum ada data</div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {devices.map((d, i) => {
+                    const maxCount = devices[0].count;
+                    const pct = maxCount > 0 ? (d.count / maxCount) * 100 : 0;
+                    return (
+                      <div key={d.device}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", marginBottom: "4px" }}>
+                          <span style={{ color: "var(--color-ocean-900)", fontWeight: i === 0 ? 600 : 500 }}>{d.device}</span>
+                          <span style={{ color: "var(--color-ocean-600)", fontWeight: 600 }}>{d.count.toLocaleString("id-ID")}</span>
+                        </div>
+                        <div style={{ height: "5px", background: "var(--color-ocean-100)", borderRadius: "9999px", overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${pct}%`, background: "var(--color-ocean-500)", borderRadius: "9999px" }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* OS */}
+            <div style={{
+              background: "white", borderRadius: "16px", padding: "24px",
+              boxShadow: "var(--shadow-card)",
+            }}>
+              <h2 style={{
+                fontSize: "1rem", fontWeight: 600,
+                color: "var(--color-ocean-900)", marginBottom: "16px",
+              }}>
+                💻 Sistem Operasi
+              </h2>
+              {osData.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "24px", color: "var(--color-ocean-400)", fontSize: "0.875rem" }}>Belum ada data</div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {osData.map((o, i) => {
+                    const maxCount = osData[0].count;
+                    const pct = maxCount > 0 ? (o.count / maxCount) * 100 : 0;
+                    return (
+                      <div key={o.os}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", marginBottom: "4px" }}>
+                          <span style={{ color: "var(--color-ocean-900)", fontWeight: i === 0 ? 600 : 500 }}>{o.os}</span>
+                          <span style={{ color: "var(--color-ocean-600)", fontWeight: 600 }}>{o.count.toLocaleString("id-ID")}</span>
+                        </div>
+                        <div style={{ height: "5px", background: "var(--color-gold-100)", borderRadius: "9999px", overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${pct}%`, background: "var(--color-gold-500)", borderRadius: "9999px" }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Browsers */}
+            <div style={{
+              background: "white", borderRadius: "16px", padding: "24px",
+              boxShadow: "var(--shadow-card)",
+            }}>
+              <h2 style={{
+                fontSize: "1rem", fontWeight: 600,
+                color: "var(--color-ocean-900)", marginBottom: "16px",
+              }}>
+                🌐 Browser
+              </h2>
+              {browsers.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "24px", color: "var(--color-ocean-400)", fontSize: "0.875rem" }}>Belum ada data</div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {browsers.map((b, i) => {
+                    const maxCount = browsers[0].count;
+                    const pct = maxCount > 0 ? (b.count / maxCount) * 100 : 0;
+                    return (
+                      <div key={b.browser}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", marginBottom: "4px" }}>
+                          <span style={{ color: "var(--color-ocean-900)", fontWeight: i === 0 ? 600 : 500 }}>{b.browser}</span>
+                          <span style={{ color: "var(--color-ocean-600)", fontWeight: 600 }}>{b.count.toLocaleString("id-ID")}</span>
+                        </div>
+                        <div style={{ height: "5px", background: "var(--color-forest-100)", borderRadius: "9999px", overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${pct}%`, background: "var(--color-forest-500)", borderRadius: "9999px" }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          {/* Top Pages List */}
+          <div style={{
+            background: "white", borderRadius: "16px", padding: "24px",
+            boxShadow: "var(--shadow-card)", marginBottom: "24px",
+          }}>
+            <h2 style={{
+              fontSize: "1rem", fontWeight: 600,
+              color: "var(--color-ocean-900)", marginBottom: "16px",
+            }}>
+              📄 Halaman Paling Sering Dikunjungi
+            </h2>
+            {pages.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "24px", color: "var(--color-ocean-400)", fontSize: "0.875rem" }}>Belum ada data</div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {pages.map((p, i) => (
+                  <div key={p.page} style={{
+                    display: "flex", justifyContent: "space-between", alignItems: "center",
+                    padding: "12px 16px", background: "var(--color-ocean-50)",
+                    borderRadius: "8px", border: "1px solid var(--color-ocean-100)"
+                  }}>
+                     <span style={{ 
+                       color: "var(--color-ocean-800)", fontSize: "0.875rem", 
+                       fontFamily: "var(--font-mono)", wordBreak: "break-all"
+                     }}>
+                       {p.page}
+                     </span>
+                     <span style={{
+                       fontSize: "0.85rem", fontWeight: 600, color: "var(--color-ocean-700)",
+                       background: "white", padding: "4px 10px", borderRadius: "99px",
+                       boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                     }}>
+                       {p.count.toLocaleString("id-ID")} x
+                     </span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Info banner */}
