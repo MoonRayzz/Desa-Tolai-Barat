@@ -1,0 +1,20 @@
+{
+  // Nonaktifkan validator CSS bawaan VS Code.
+  // Validator ini tidak mengenal at-rule Tailwind v4 (@theme, @utility, @apply)
+  // sehingga memunculkan peringatan "Unknown at rule" yang menyesatkan.
+  // Tailwind CSS IntelliSense extension sudah menangani validasi CSS dengan benar.
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
+
+  // Opsional: aktifkan Tailwind CSS IntelliSense jika belum terpasang
+  // Install dari: https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+
+  // Rekomendasikan Tailwind IntelliSense ke semua kontributor project ini
+  "extensions.recommendations": [
+    "bradlc.vscode-tailwindcss"
+  ]
+}

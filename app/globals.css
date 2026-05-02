@@ -292,12 +292,18 @@
   .bg-sand-gradient  { background: linear-gradient(135deg, #F7F0E4 0%, #FDFAF5 100%); }
 
   .line-clamp-2 {
-    display: -webkit-box; -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical; overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2; /* ✅ Standar CSS Overflow Level 4 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   .line-clamp-3 {
-    display: -webkit-box; -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical; overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3; /* ✅ Standar CSS Overflow Level 4 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .animation-delay-100 { animation-delay: 100ms; }
