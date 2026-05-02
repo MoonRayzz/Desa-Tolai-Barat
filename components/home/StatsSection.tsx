@@ -58,7 +58,7 @@ export default async function StatsSection() {
                 {st.value}
                 {st.unit && <span style={{ fontSize: "0.75rem", marginLeft: "4px", fontFamily: "var(--font-sans)", fontWeight: 400 }}>{st.unit}</span>}
               </div>
-              <div style={{ fontSize: "0.75rem", color: "var(--color-ocean-500)", marginTop: "4px" }}>{st.label}</div>
+              <div style={{ fontSize: "0.75rem", color: "var(--color-ocean-700)", marginTop: "4px" }}>{st.label}</div>
             </div>
           ))}
         </div>

@@ -67,7 +67,7 @@ export default async function MapSection() {
                   📍
                 </div>
                 <div>
-                  <h4
+                  <h3
                     style={{
                       fontSize: "1rem",
                       fontWeight: 600,
@@ -75,7 +75,7 @@ export default async function MapSection() {
                     }}
                   >
                     Alamat Kantor
-                  </h4>
+                  </h3>
                   <p
                     style={{
                       fontSize: "0.875rem",
@@ -107,7 +107,7 @@ export default async function MapSection() {
                   🗺️
                 </div>
                 <div>
-                  <h4
+                  <h3
                     style={{
                       fontSize: "1rem",
                       fontWeight: 600,
@@ -115,7 +115,7 @@ export default async function MapSection() {
                     }}
                   >
                     Koordinat Geografis
-                  </h4>
+                  </h3>
                   <p
                     style={{
                       fontSize: "0.875rem",
@@ -146,7 +146,7 @@ export default async function MapSection() {
                   📞
                 </div>
                 <div>
-                  <h4
+                  <h3
                     style={{
                       fontSize: "1rem",
                       fontWeight: 600,
@@ -154,7 +154,7 @@ export default async function MapSection() {
                     }}
                   >
                     Hubungi Kami
-                  </h4>
+                  </h3>
                   <p
                     style={{
                       fontSize: "0.875rem",

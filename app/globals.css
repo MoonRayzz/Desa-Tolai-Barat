@@ -149,7 +149,7 @@
 
   .section-subtitle {
     font-size: 1rem;
-    color: color-mix(in srgb, var(--color-ocean-700) 70%, transparent);
+    color: var(--color-ocean-700); /* ✅ #0B5E6B, kontras ~5.3:1 di atas putih */
     line-height: 1.75;
     margin-top: 0.75rem;
   }

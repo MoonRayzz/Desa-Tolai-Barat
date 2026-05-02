@@ -22,7 +22,7 @@ export const viewport: Viewport = {
   themeColor: "#0B5E6B",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  // maximumScale dihapus → user bebas zoom (WCAG 1.4.4 Resize Text)
 };
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://desa-tolai-barat.vercel.app";
