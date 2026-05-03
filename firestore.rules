@@ -1,31 +1,72 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+  
+    // FUNGSI BANTUAN (HELPER FUNCTIONS)
+    // Mengecek apakah user sudah login
+    function isAuthenticated() {
+      return request.auth != null;
+    }
 
-    // Koleksi publik — siapapun boleh baca
-    match /settings/{docId}          { allow read: if true; allow write: if false; }
-    match /berita/{docId}            { allow read: if true; allow write: if false; }
-    match /wisata/{docId}            { allow read: if true; allow write: if false; }
-    match /potensi/{docId}           { allow read: if true; allow write: if false; }
-    match /bumdes/{docId}            { allow read: if true; allow write: if false; }
-    match /galeri/{docId}            { allow read: if true; allow write: if false; }
-    match /layanan/{docId}           { allow read: if true; allow write: if false; }
-    match /perangkat/{docId}         { allow read: if true; allow write: if false; }
-    match /fasilitas/{docId}         { allow read: if true; allow write: if false; }
-    match /pengumuman/{docId}        { allow read: if true; allow write: if false; }
-    match /agenda/{docId}            { allow read: if true; allow write: if false; }
-    match /survei/{docId}            { allow read: if true; allow write: if false; }
+    // (Opsional tapi disarankan) Mengecek apakah user ada di koleksi "admins"
+    // function isAdmin() {
+    //   return isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    // }
 
-    // Survei jawaban — publik bisa tulis (submit), tidak bisa baca
-    match /survei_jawaban/{docId}    { allow create: if true; allow read, update, delete: if false; }
+    // ==========================================
+    // KOLEKSI PUBLIK (Hanya Boleh Baca)
+    // ==========================================
+    match /settings/{docId}          { allow read: if true; }
+    match /berita/{docId}            { allow read: if true; }
+    match /wisata/{docId}            { allow read: if true; }
+    match /potensi/{docId}           { allow read: if true; }
+    match /bumdes/{docId}            { allow read: if true; }
+    match /galeri/{docId}            { allow read: if true; }
+    match /layanan/{docId}           { allow read: if true; }
+    match /perangkat/{docId}         { allow read: if true; }
+    match /fasilitas/{docId}         { allow read: if true; }
+    match /pengumuman/{docId}        { allow read: if true; }
+    match /agenda/{docId}            { allow read: if true; }
+    match /survei/{docId}            { allow read: if true; }
 
-    // Analytics — publik bisa tulis (log visit), hanya admin bisa baca
-    match /analytics_visits/{docId} { allow create: if true; allow read: if request.auth != null; }
-    match /analytics_daily/{docId}  { allow read, write: if request.auth != null; }
+    // ==========================================
+    // KOLEKSI INPUT PUBLIK
+    // ==========================================
+    
+    // SURVEI: Publik hanya bisa submit, tidak bisa baca
+    match /survei_jawaban/{docId} { 
+      allow create: if true 
+        // Contoh Validasi: Mencegah bot mengirim payload ngawur
+        // Pastikan request memiliki field yang wajar (sesuaikan dengan kode Anda)
+        && request.resource.data.keys().hasAny(['surveiId', 'jawaban', 'createdAt']);
+        
+      allow read, update, delete: if false; 
+    }
 
-    // Semua write lainnya harus login
+    // ANALYTICS: Publik hanya log visit, admin bisa baca
+    match /analytics_visits/{docId} { 
+      allow create: if true
+        // Batasi ukuran payload, misalnya bot mengirim string path sangat panjang
+        && request.resource.data.path is string 
+        && request.resource.data.path.size() < 200; 
+        
+      allow read: if isAuthenticated(); 
+      allow update, delete: if false;
+    }
+    
+    match /analytics_daily/{docId} { 
+      allow read, write: if isAuthenticated(); 
+    }
+
+    // ==========================================
+    // ATURAN CATCH-ALL (UNTUK ADMIN)
+    // ==========================================
+    // Semua manipulasi tulis untuk koleksi lainnya wajib login.
     match /{document=**} {
-      allow read, write: if request.auth != null;
+      // NOTE: Jika website ini BISA didaftar oleh orang biasa (public login),
+      // UBAH 'isAuthenticated()' menjadi aturan pengecekan Admin khusus agar user biasa
+      // tidak bisa mengedit konten desa.
+      allow read, write: if isAuthenticated();
     }
   }
 }
