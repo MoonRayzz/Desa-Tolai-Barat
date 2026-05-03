@@ -97,7 +97,9 @@ export default async function SurveiPage() {
   ]);
 
   const aktifIds  = new Set(aktifList.map((s) => s.id));
-  const arsipList = semuaList.filter((s) => !aktifIds.has(s.id));
+  // Arsip hanya menampilkan survei yang "aktif" (published) tapi sudah kadaluarsa (tidak masuk aktifList).
+  // Survei yang di-nonaktifkan manual (aktif: false) tidak akan muncul di publik.
+  const arsipList = semuaList.filter((s) => s.aktif && !aktifIds.has(s.id));
 
   return (
     <>
