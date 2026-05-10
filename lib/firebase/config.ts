@@ -1,6 +1,6 @@
 // File: lib/firebase/config.ts
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, initializeFirestore } from "firebase/firestore";
 import { getAuth, browserSessionPersistence, setPersistence } from "firebase/auth";
 
 const firebaseConfig = {
@@ -13,14 +13,27 @@ const firebaseConfig = {
 };
 
 // Pola Singleton: Gunakan aplikasi yang sudah ada jika tersedia
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+let app;
+let db;
 
-// Inisialisasi layanan
-export const db   = getFirestore(app);
+if (getApps().length === 0) {
+  app = initializeApp(firebaseConfig);
+  // Fix GRPC error di Next.js Server Components
+  db = initializeFirestore(app, {
+    experimentalForceLongPolling: true,
+  });
+} else {
+  app = getApp();
+  db = getFirestore(app);
+}
+
+export { db };
 export const auth = getAuth(app);
 
 // Sesi login hanya berlaku selama tab/browser terbuka.
 // Setelah tab ditutup, user harus login ulang.
-setPersistence(auth, browserSessionPersistence).catch(console.error);
+if (typeof window !== "undefined") {
+  setPersistence(auth, browserSessionPersistence).catch(console.error);
+}
 
 export default app;
